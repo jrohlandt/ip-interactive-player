@@ -1,4 +1,4 @@
-import { getYoutubeVideoId } from '../../utils/youtube';
+import { getYoutubeVideoId } from './utils/vendor';
 
 let loadYT = false;
 const YoutubeAPI = function(videoUrl, setPlayer, playbackStates, onPlayerReady, onPlayerStateChange) {

@@ -37,7 +37,7 @@ const PlayerWindow = function(props) {
               </div>
   
               {/* <!-- Player Controls --> */}
-              <div className="player-control-bar">
+              <div className="player-control-bar" >
   
                   {/* <!-- todo use webpack to load icons --> */}
                   <div 

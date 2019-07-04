@@ -5,7 +5,7 @@ import { STATES, ON_PLAYER_STATE_CHANGE, ON_TIME_UPDATE } from './Constants';
 import HTML5Player from './HTML5Player.js';
 import { VENDORS } from './Constants.js';
 import YoutubePlayer from './YoutubePlayer.js';
-import { join } from 'path';
+import { getVendor } from './utils/vendor';
 
 class VideoPlayer extends React.Component {
   constructor(props) {
@@ -65,15 +65,16 @@ class VideoPlayer extends React.Component {
   }
 
   render() {
+    // console.log(this.props);
     const props = {
-      vendor: this.props.vendor,
+      // vendor: this.props.vendor,
       url: this.props.url,
       autoplay: this.props.autoplay,
       message: this.props.message,
       // purposely exluding this.props.sendMessageToParent
     };
 
-    switch(props.vendor) {
+    switch(getVendor(props.url)) {
       case VENDORS.HTML5: 
         return (
           <HTML5Player 

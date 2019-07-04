@@ -7,7 +7,8 @@
                 "id": 10,
                 "parent_id": 0,
                 "title": "parent",
-                "url": "https://www.youtube.com/watch?v=Sh6lK57Cuk4"
+                "url": "https://www.youtube.com/watch?v=Sh6lK57Cuk4",
+                "interactor": {"enabled": true, "type": "on_start", "start_time": 0}
             },
         
             {

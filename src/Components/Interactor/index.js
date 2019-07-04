@@ -3,14 +3,14 @@ import './styles.css';
 import { buildStructure } from '../../utils/tree';
 import { ACTIONS, STATES, ON_PLAYER_STATE_CHANGE, ON_TIME_UPDATE } from '../../utils/constants';
 import Ajax from '../../utils/ajax';
+import { isDev } from '../../utils/env';
 import VideoPlayer from '../VideoPlayer';
 
 class Interactor extends React.Component {
 
   ifr;
   state;
-  data;
-  waitForData;
+  videoTree;
   constructor(props) {
     super(props);
 
@@ -19,37 +19,40 @@ class Interactor extends React.Component {
     this.state = {
       currentVideo: {
         currentTime: 0,
-        id: 0, // get rid
-        url: '', // get rid
-        data: { settings: { interactors: {enabled: 0}, children: []}},
+        id: 0,
+        url: '',
+        // data: { settings: { interactors: {enabled: 0}, children: []}},
+        interactor: {enabled: false, type: 'on_end', start_time: 0},
+        nodes: [],
         showInteractor: false, 
       },
-      messageToVideoPlayer: {},
+    //   messageToVideoPlayer: {},
     };
 
-    this.postMessageToVideoPlayer = this.postMessageToVideoPlayer.bind(this);
     this.changeVideo = this.changeVideo.bind(this);
-    this.listenForMessage = this.listenForMessage.bind(this);
-  }
-
-  postMessageToVideoPlayer(message) {
-    this.ifr.contentWindow.postMessage({message}, "*");
+    this.messageFromVideoPlayer = this.messageFromVideoPlayer.bind(this);
   }
 
   changeVideo(video) {
-    console.log(video);
+    // let currentVideo = {...this.state};
+    console.log('change video', video);
     
-    const message = {
-      name: 'change_url', 
-      params: {url: video.settings.video.video_url, start_at: 0, end_at: 0}
-    };
-    this.postMessageToVideoPlayer(message);
-    this.setState({currentVideo: {id: video.id, data: video}});
+    // state.messageToVideoPlayer = {
+    //   name: 'change_url', 
+    //   params: {url: video.url, start_at: 0, end_at: 0}
+    // };
+    const currentVideo = {
+        ...video,
+        currentTime: 0,
+        showInteractor: false,
+    }
+    // state.currentVideo = video; //{id: video.id, url: video.url};
+    this.setState({currentVideo});
   }
 
   showInteractor(currentVideo) {
     // let currentVideo = {...this.state.currentVideo};
-    let interactor = currentVideo.data.settings.interactors;
+    let interactor = currentVideo.interactor;
     const currentTime = currentVideo.currentTime;
 
     if (interactor.enabled === 1) {
@@ -73,26 +76,28 @@ class Interactor extends React.Component {
     }
   }
 
-  getInteractorStart(video) {
-    let interactor = video.data.settings.interactors;
+  getInteractor(video) {
+    let interactor = this.state.currentVideo.interactor;
 
     if (interactor.enabled !== 1) return false;
 
-    if (['start', 'end', 'custom'].indexOf(interactor.show_time) !== -1) {
-      return interactor.show_time;
+    if (['start', 'end', 'custom'].indexOf(interactor.start_time) !== -1) {
+      return interactor.start_time;
     }
   }
 
-  listenForMessage() {
-    window.addEventListener('message', (event) => {
-     
-      if (typeof event.data.message === 'undefined') return;
+  messageFromVideoPlayer(obj) {
+        // console.log('message from player', message);
+      if (typeof obj.message === 'undefined' || typeof obj.message.name === 'undefined') return;
+      const message = obj.message;
+    //   console.log('plaer state sendMessageToParent' );
 
-      const message = event.data.message;
       let currentVideo = {...this.state.currentVideo};
 
       // On State Change
       if (message.name === ON_PLAYER_STATE_CHANGE) {
+        console.log('message from player', message);
+
         const playbackState = message.params.playbackState;
 
         switch(playbackState) {
@@ -102,9 +107,11 @@ class Interactor extends React.Component {
           case STATES.BUFFERING:
             break;
           case STATES.PLAYING:
-            if (this.getInteractorStart(currentVideo) === 'start') {
+            let interactor = this.getInteractor(currentVideo);
+            if (interactor.type === 'on_start') {
+                console.log('playing and interactor: ', interactor);
               currentVideo.showInteractor = true;
-              currentVideo.data.settings.interactors.enabled = 0;
+              currentVideo.interactor.enabled = 0;
               this.postMessageToVideoPlayer({name: 'pause_playback'});
             }
             break;
@@ -112,9 +119,9 @@ class Interactor extends React.Component {
             // show thumbnail
             break;
           case STATES.ENDED:
-            if (this.getInteractorStart(currentVideo) === 'end') {
-              currentVideo.showInteractor = true;
-              currentVideo.data.settings.interactors.enabled = 0;
+            if (this.getInteractor(currentVideo) === 'end') {
+                currentVideo.showInteractor = true;
+                currentVideo.interactor.enabled = 0;
               this.postMessageToVideoPlayer({name: 'pause_playback'});
             }
             break;
@@ -136,15 +143,14 @@ class Interactor extends React.Component {
           currentVideo.data.settings.interactors.enabled = 0;
           this.postMessageToVideoPlayer({name: 'pause_playback'});
         }
+
         this.setState({currentVideo});
       }
-    });
   }
 
   componentDidMount() {
-
     let url = `${process.env.PUBLIC_URL}/data/project_1.json`;
-    if (process.env.NODE_ENV !== 'development') {
+    if (!isDev()) {
       const projectId = document.head.querySelector('meta[name="project-id"]').getAttribute('content');
       url = `/projects/${projectId}`;
     }
@@ -153,30 +159,15 @@ class Interactor extends React.Component {
       .then(res => {
         if (typeof res.project !== 'undefined') {
           if (res.project.nodes.length > 0) {
-            this.data = buildStructure(res.project.nodes);
+            this.videoTree = buildStructure(res.project.nodes);
+            console.log('video tree', this.videoTree);
+            this.changeVideo(this.videoTree);
           }
         }
       })
       .catch(err => console.error(err));
-    // this.ifr.onload = () => {
-    //   this.waitForData = setInterval(_ => {
-    //     if (typeof(window['forMrVideo']) === 'undefined') {
-    //       return;
-    //     }
-    //     this.data = window['forMrVideo'];
-    //     clearInterval(this.waitForData);
-
-    //    this.listenForMessage();
-
-    //     // start by sending parent video to player
-    //     this.changeVideo(this.data.videos[0]);
-    //   }, 100);
-    // }
   }
 
-  componentWillUnmount() {
-    clearInterval(this.waitForData);
-  }
 
   render() {
     let currentVideo = this.state.currentVideo;
@@ -186,7 +177,7 @@ class Interactor extends React.Component {
       interactionMarkup = (
         <div className="current-interaction">
           { 
-            currentVideo.data.settings.children.map(c => {
+            currentVideo.nodes.map(c => {
               // console.log('child: ', c);
               return (
                   <button 
@@ -209,7 +200,18 @@ class Interactor extends React.Component {
           </header>
           <div className="interactor-wrapper">
             { interactionMarkup }
-            <VideoPlayer />
+            { 
+                this.state.currentVideo.url 
+                    ?   <VideoPlayer
+                            autoPlay={true}
+                            url={this.state.currentVideo.url}
+                            // pause={this.state.pause}
+                            // play={this.state.play}
+                            sendMessageToParent={this.messageFromVideoPlayer}
+                            messageFromInteractor={this.state.messageToVideoPlayer}
+                        />
+                    : ''
+            }
           </div>
           
           <footer>footer</footer>
