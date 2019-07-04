@@ -70,7 +70,8 @@ class VideoPlayer extends React.Component {
       // vendor: this.props.vendor,
       url: this.props.url,
       autoplay: this.props.autoplay,
-      message: this.props.message,
+      // message: this.props.message,
+      pause: this.props.pause,
       // purposely exluding this.props.sendMessageToParent
     };
 

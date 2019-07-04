@@ -8,13 +8,10 @@ import VideoPlayer from '../VideoPlayer';
 
 class Interactor extends React.Component {
 
-  ifr;
   state;
   videoTree;
   constructor(props) {
     super(props);
-
-    this.ifr = null;
 
     this.state = {
       currentVideo: {
@@ -26,6 +23,7 @@ class Interactor extends React.Component {
         nodes: [],
         showInteractor: false, 
       },
+      pauseCurrentVideo: false,
     //   messageToVideoPlayer: {},
     };
 
@@ -35,7 +33,7 @@ class Interactor extends React.Component {
 
   changeVideo(video) {
     // let currentVideo = {...this.state};
-    console.log('change video', video);
+    console.log('!!!!!!!!!!!!change video', video);
     
     // state.messageToVideoPlayer = {
     //   name: 'change_url', 
@@ -55,19 +53,19 @@ class Interactor extends React.Component {
     let interactor = currentVideo.interactor;
     const currentTime = currentVideo.currentTime;
 
-    if (interactor.enabled === 1) {
-      switch(interactor.show_time) {
-        case 'start':
+    if (interactor.enabled === true) {
+      switch(interactor.type) {
+        case 'on_start':
           // if currentVideo.playbackState === STATES.STARTED
           console.log('display on start');
           return false;
-        case 'end':
+        case 'on_end':
           console.log('display on end');
           // currentVideo.playbackState === STATES.ENDED
           return false;
-        case 'custom':
+        case 'custom_time':
           console.log('custom time');
-          if (currentTime >= interactor.custom_time) {
+          if (currentTime >= interactor.start_time) {
             return true;
           }
           return false;
@@ -79,24 +77,22 @@ class Interactor extends React.Component {
   getInteractor(video) {
     let interactor = this.state.currentVideo.interactor;
 
-    if (interactor.enabled !== 1) return false;
+    if (interactor.enabled !== true) return false;
 
-    if (['start', 'end', 'custom'].indexOf(interactor.start_time) !== -1) {
-      return interactor.start_time;
+    if (['on_start', 'on_end', 'custom_time'].indexOf(interactor.type) !== -1) {
+      return interactor;
     }
   }
 
   messageFromVideoPlayer(obj) {
-        // console.log('message from player', message);
       if (typeof obj.message === 'undefined' || typeof obj.message.name === 'undefined') return;
       const message = obj.message;
-    //   console.log('plaer state sendMessageToParent' );
 
+      let state = {...this.state};
       let currentVideo = {...this.state.currentVideo};
 
       // On State Change
       if (message.name === ON_PLAYER_STATE_CHANGE) {
-        console.log('message from player', message);
 
         const playbackState = message.params.playbackState;
 
@@ -108,11 +104,12 @@ class Interactor extends React.Component {
             break;
           case STATES.PLAYING:
             let interactor = this.getInteractor(currentVideo);
+            console.log('8888888888 ', interactor);
             if (interactor.type === 'on_start') {
                 console.log('playing and interactor: ', interactor);
               currentVideo.showInteractor = true;
-              currentVideo.interactor.enabled = 0;
-              this.postMessageToVideoPlayer({name: 'pause_playback'});
+              currentVideo.interactor.enabled = false;
+              state.pauseCurrentVideo = true;
             }
             break;
           case STATES.PAUSED:
@@ -121,16 +118,17 @@ class Interactor extends React.Component {
           case STATES.ENDED:
             if (this.getInteractor(currentVideo) === 'end') {
                 currentVideo.showInteractor = true;
-                currentVideo.interactor.enabled = 0;
-              this.postMessageToVideoPlayer({name: 'pause_playback'});
+                currentVideo.interactor.enabled = false;
+                state.pauseCurrentVideo = true;
             }
             break;
           case STATES.CUED:
             break;
         }
-        console.log(ON_PLAYER_STATE_CHANGE, message.params.playbackState);
+        // console.log(ON_PLAYER_STATE_CHANGE, message.params.playbackState);
         currentVideo.playbackState = message.params.playbackState;
-        this.setState({currentVideo});
+        state.currentVideo = currentVideo;
+        this.setState(state);
       }
 
       // On Time Update
@@ -140,11 +138,12 @@ class Interactor extends React.Component {
         
         if (this.showInteractor(currentVideo)) {
           currentVideo.showInteractor = true;
-          currentVideo.data.settings.interactors.enabled = 0;
-          this.postMessageToVideoPlayer({name: 'pause_playback'});
+          currentVideo.interactor.enabled = false;
+          state.pauseCurrentVideo = true;
         }
 
-        this.setState({currentVideo});
+        state.currentVideo = currentVideo;
+        this.setState(state);
       }
   }
 
@@ -162,10 +161,19 @@ class Interactor extends React.Component {
             this.videoTree = buildStructure(res.project.nodes);
             console.log('video tree', this.videoTree);
             this.changeVideo(this.videoTree);
+
+            // setInterval(_ => console.log(this.state.currentVideo.interactor), 500);
           }
         }
       })
       .catch(err => console.error(err));
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (prevState.currentVideo.interactor !== this.state.currentVideo.interactor) {
+      console.log('###########state interactor changed');
+      console.log(prevState.currentVideo.interactor, this.state.currentVideo.interactor);
+    }
   }
 
 
@@ -177,14 +185,13 @@ class Interactor extends React.Component {
       interactionMarkup = (
         <div className="current-interaction">
           { 
-            currentVideo.nodes.map(c => {
-              // console.log('child: ', c);
+            currentVideo.nodes.map(n => {
               return (
                   <button 
-                    key={c.id}
-                    onClick={() => this.changeVideo(c)} 
+                    key={n.id}
+                    onClick={() => this.changeVideo(n)} 
                   >
-                    {c.settings.title}
+                    {n.title}
                   </button>
                 );
             })
@@ -205,7 +212,7 @@ class Interactor extends React.Component {
                     ?   <VideoPlayer
                             autoPlay={true}
                             url={this.state.currentVideo.url}
-                            // pause={this.state.pause}
+                            pause={this.state.pauseCurrentVideo}
                             // play={this.state.play}
                             sendMessageToParent={this.messageFromVideoPlayer}
                             messageFromInteractor={this.state.messageToVideoPlayer}
