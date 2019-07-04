@@ -3,8 +3,8 @@ import React from 'react';
 import { STATES, VENDORS, ACTIONS } from './Constants';
 import { isValidState, isValidAction } from './Helpers.js';
 import PlayerWindow from './PlayerWindow.js';
-import YoutubeAPI from '../lib/YoutubeAPI.js';
-import { getYoutubeVideoId } from '../lib/utils.js';
+import YoutubeAPI from './YoutubeAPI.js';
+import { getYoutubeVideoId } from '../../utils/youtube';
 
 class YoutubePlayer extends React.Component {
 

@@ -7,7 +7,7 @@ import { VENDORS } from './Constants.js';
 import YoutubePlayer from './YoutubePlayer.js';
 import { join } from 'path';
 
-class MRVideo extends React.Component {
+class VideoPlayer extends React.Component {
   constructor(props) {
     super(props);
     this.communicateWithParent = false;
@@ -97,4 +97,4 @@ class MRVideo extends React.Component {
     
 };
 
-export default MRVideo;
+export default VideoPlayer;
