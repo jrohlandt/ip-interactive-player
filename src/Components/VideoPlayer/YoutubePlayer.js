@@ -189,9 +189,7 @@ class YoutubePlayer extends React.Component {
     }
 
     // listen for commands from parent component
-    console.log('9999999999999999999999999',prevProps.pause,this.props.pause)
     if (prevProps.pause !== this.props.pause) {
-      console.log('this pause ------------');
       this.doAction(ACTIONS.PAUSE);
     };
 
