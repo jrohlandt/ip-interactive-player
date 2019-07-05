@@ -140,16 +140,20 @@ class YoutubePlayer extends React.Component {
       const duration = this.player.getDuration();
       // state.duration = this.player.getDuration();
       if (!isNaN(duration)) {
+        console.log('if is a number', duration);
         state.duration = duration;
       }
       console.log('state duration: ', duration);
     }
     
-    state.currentTime = this.player.getCurrentTime();
-    if (this.state.currentTime !== state.currentTime) {
-      this.props.updateCurrentTime(state.currentTime);
+    const currTime = this.player.getCurrentTime();
+    if (!isNaN(currTime)) {
+      if (this.state.currentTime !== currTime) {
+        this.props.updateCurrentTime(currTime);
+        state.currentTime = currTime;
+      }
     }
-
+  
     // when a new video url is passed to the component
     // if (this.state.url !== this.props.url) {
     //   state.url = this.props.url;
@@ -190,7 +194,12 @@ class YoutubePlayer extends React.Component {
 
     // listen for commands from parent component
     if (prevProps.pause !== this.props.pause) {
-      this.doAction(ACTIONS.PAUSE);
+      // setTimeout(() => {
+        if (this.props.pause !== true) return;
+        console.log('!!!!!!!!!!!!!!!!!!! PAUSE', this.state.currentTime);
+
+        this.doAction(ACTIONS.PAUSE);
+      // }, 1000);
     };
 
     if (prevProps.message === this.props.message) return;

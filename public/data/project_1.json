@@ -29,7 +29,9 @@
                 "id": 1889,
                 "parent_id": 10,
                 "title": "child 2",
-                "url": "https://www.youtube.com/watch?v=783ccP__No8"
+                "url": "https://www.youtube.com/watch?v=783ccP__No8",
+                "interactor": {"enabled": true, "type": "on_start", "start_time": 5}
+
             }, 
         
             {
