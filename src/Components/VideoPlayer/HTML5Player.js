@@ -110,7 +110,7 @@ class HTML5Player extends React.Component {
       this.setState({duration: 0, currentTime: 0});
     }
 
-    if (prevProps.pause !== this.props.pause) {
+    if (prevProps.pause !== this.props.pause && this.props.pause === true) {
       this.doAction(ACTIONS.PAUSE);
     };
 
