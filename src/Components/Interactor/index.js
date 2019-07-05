@@ -111,10 +111,6 @@ class Interactor extends React.Component {
             break;
           case STATES.PLAYING:
             if (this.shouldShowInteractor(currentVideo, 'on_start')) {
-            // let interactor = this.getInteractor(currentVideo);
-            console.log('8888888888 ', 'on_start');
-            // if (interactor.type === 'on_start') {
-            //     console.log('playing and interactor: ', interactor);
               currentVideo.showInteractor = true;
               currentVideo.interactor.enabled = false;
               state.pauseCurrentVideo = true;
@@ -124,11 +120,10 @@ class Interactor extends React.Component {
             // show thumbnail
             break;
           case STATES.ENDED:
-            let interactor = this.getInteractor(currentVideo);
-            if (this.getInteractor(currentVideo) === 'on_end') {
+            if (this.shouldShowInteractor(currentVideo, 'on_end')) {
                 currentVideo.showInteractor = true;
                 currentVideo.interactor.enabled = false;
-                state.pauseCurrentVideo = true;
+                // state.pauseCurrentVideo = true;
             }
             break;
           case STATES.CUED:
@@ -226,7 +221,7 @@ class Interactor extends React.Component {
                             sendMessageToParent={this.messageFromVideoPlayer}
                             messageFromInteractor={this.state.messageToVideoPlayer}
                         />
-                    : ''
+                    : 'No video url supplied'
             }
           </div>
           
