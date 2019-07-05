@@ -24,27 +24,37 @@ class Interactor extends React.Component {
         showInteractor: false, 
       },
       pauseCurrentVideo: false,
+      forceReload: false, // if the next video has the same url, force the video player component to play it.
     };
 
     this.changeVideo = this.changeVideo.bind(this);
     this.messageFromVideoPlayer = this.messageFromVideoPlayer.bind(this);
+    this.resetForceReload = this.resetForceReload.bind(this);
+
   }
 
   changeVideo(video) {
-    // let currentVideo = {...this.state};
+    let state = {...this.state};
     console.log('!!!!!!!!!!!!change video', video);
     
     // state.messageToVideoPlayer = {
     //   name: 'change_url', 
     //   params: {url: video.url, start_at: 0, end_at: 0}
     // };
-    const currentVideo = {
+    state.currentVideo = {
         ...video,
         currentTime: 0,
         showInteractor: false,
     }
-    // state.currentVideo = video; //{id: video.id, url: video.url};
-    this.setState({currentVideo, pauseCurrentVideo: false});
+    state.pauseCurrentVideo = false;
+    if (state.currentVideo.url === this.state.currentVideo.url) {
+      state.forceReload = true;
+    }
+    this.setState(state);
+  }
+
+  resetForceReload() {
+    this.setState({forceReload: false});
   }
 
   /**
@@ -216,6 +226,8 @@ class Interactor extends React.Component {
                     ?   <VideoPlayer
                             autoPlay={true}
                             url={this.state.currentVideo.url}
+                            forceReload={this.state.forceReload}
+                            resetForceReload={this.resetForceReload}
                             pause={this.state.pauseCurrentVideo}
                             // play={this.state.play}
                             sendMessageToParent={this.messageFromVideoPlayer}

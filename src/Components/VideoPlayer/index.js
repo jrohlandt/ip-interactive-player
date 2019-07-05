@@ -69,6 +69,8 @@ class VideoPlayer extends React.Component {
     const props = {
       // vendor: this.props.vendor,
       url: this.props.url,
+      forceReload: this.props.forceReload,
+      resetForceReload: this.props.resetForceReload,
       autoplay: this.props.autoplay,
       // message: this.props.message,
       pause: this.props.pause,

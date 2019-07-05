@@ -104,7 +104,8 @@ class HTML5Player extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    if (prevProps.url !== this.props.url) {
+    if (prevProps.url !== this.props.url || this.props.forceReload === true) {
+      this.props.resetForceReload();
       this.doAction(ACTIONS.PAUSE);
       this.doAction(ACTIONS.PLAY);
       this.setState({duration: 0, currentTime: 0});

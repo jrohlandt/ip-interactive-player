@@ -186,7 +186,8 @@ class YoutubePlayer extends React.Component {
   componentDidUpdate(prevProps, prevState, snapshot) {
 
     // handle url change
-    if (prevProps.url !== this.props.url) {
+    if (prevProps.url !== this.props.url || this.props.forceReload === true) {
+      this.props.resetForceReload();
       this.player.loadVideoById(getYoutubeVideoId(this.props.url));
       this.doAction(ACTIONS.SEEK_TO, {currentTime: 0});
       this.setState({url: this.props.url, duration: 0, currentTime: 0});
