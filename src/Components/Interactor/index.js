@@ -3,7 +3,7 @@ import './styles.css';
 import { buildStructure } from '../../utils/tree';
 import { ACTIONS, STATES, ON_PLAYER_STATE_CHANGE, ON_TIME_UPDATE } from '../../utils/constants';
 import Ajax from '../../utils/ajax';
-import { isDev } from '../../utils/env';
+import { isProduction } from '../../utils/env';
 import VideoPlayer from '../VideoPlayer';
 
 class Interactor extends React.Component {
@@ -153,7 +153,7 @@ class Interactor extends React.Component {
 
   componentDidMount() {
     let url = `${process.env.PUBLIC_URL}/data/project_1.json`;
-    if (!isDev()) {
+    if (isProduction()) {
       const projectId = document.head.querySelector('meta[name="project-id"]').getAttribute('content');
       url = `/projects/${projectId}`;
     }
