@@ -18,7 +18,6 @@ class Interactor extends React.Component {
         currentTime: 0,
         id: 0,
         url: '',
-        // data: { settings: { interactors: {enabled: 0}, children: []}},
         interactor: {enabled: false, type: 'on_end', start_time: 0},
         nodes: [],
         showInteractor: false, 
@@ -34,13 +33,9 @@ class Interactor extends React.Component {
   }
 
   changeVideo(video) {
+    console.log('----- CHANGE VIDEO -----', video);
+
     let state = {...this.state};
-    console.log('!!!!!!!!!!!!change video', video);
-    
-    // state.messageToVideoPlayer = {
-    //   name: 'change_url', 
-    //   params: {url: video.url, start_at: 0, end_at: 0}
-    // };
     state.currentVideo = {
         ...video,
         currentTime: 0,
@@ -74,14 +69,11 @@ class Interactor extends React.Component {
 
     switch(type) {
       case 'on_start':
-        console.log('display on start');
         return true;
       case 'on_end':
-        console.log('display on end');
         return true;
       case 'custom_time':
         if (currentVideo.currentTime >= interactor.start_time) {
-          console.log('custom time');
           return true;
         }
     }
@@ -89,17 +81,17 @@ class Interactor extends React.Component {
     return false;
   }
 
-  getInteractor(video) {
+  // getInteractor(video) {
 
-    if (typeof this.state.currentVideo.interactor === 'undefined') return false;
-    let interactor = this.state.currentVideo.interactor;
+  //   if (typeof this.state.currentVideo.interactor === 'undefined') return false;
+  //   let interactor = this.state.currentVideo.interactor;
 
-    if (interactor.enabled !== true) return false;
+  //   if (interactor.enabled !== true) return false;
 
-    if (['on_start', 'on_end', 'custom_time'].indexOf(interactor.type) !== -1) {
-      return interactor;
-    }
-  }
+  //   if (['on_start', 'on_end', 'custom_time'].indexOf(interactor.type) !== -1) {
+  //     return interactor;
+  //   }
+  // }
 
   messageFromVideoPlayer(obj) {
       if (typeof obj.message === 'undefined' || typeof obj.message.name === 'undefined') return;
@@ -115,7 +107,7 @@ class Interactor extends React.Component {
 
         switch(playbackState) {
           case STATES.UNSTARTED:
-            // show thumbnail
+            // TODO show thumbnail
             break;
           case STATES.BUFFERING:
             break;
@@ -127,19 +119,18 @@ class Interactor extends React.Component {
             }
             break;
           case STATES.PAUSED:
-            // show thumbnail
+            // TODO show thumbnail
             break;
           case STATES.ENDED:
             if (this.shouldShowInteractor(currentVideo, 'on_end')) {
                 currentVideo.showInteractor = true;
                 currentVideo.interactor.enabled = false;
-                // state.pauseCurrentVideo = true;
+                // state.pauseCurrentVideo = true; // video already ended 
             }
             break;
           case STATES.CUED:
             break;
         }
-        // console.log(ON_PLAYER_STATE_CHANGE, message.params.playbackState);
         currentVideo.playbackState = message.params.playbackState;
         state.currentVideo = currentVideo;
         this.setState(state);
@@ -147,7 +138,6 @@ class Interactor extends React.Component {
 
       // On Time Update
       if (message.name === ON_TIME_UPDATE) {
-        // console.log('parent receiveded onTimeUpdate', message.params.currentTime);
         currentVideo.currentTime = message.params.currentTime;
         
         if (this.shouldShowInteractor(currentVideo, 'custom_time')) {
@@ -173,23 +163,14 @@ class Interactor extends React.Component {
         if (typeof res.project !== 'undefined') {
           if (res.project.nodes.length > 0) {
             this.videoTree = buildStructure(res.project.nodes);
-            console.log('video tree', this.videoTree);
+            // console.log('video tree', this.videoTree);
             this.changeVideo(this.videoTree);
 
-            // setInterval(_ => console.log(this.state.currentVideo.interactor), 500);
           }
         }
       })
       .catch(err => console.error(err));
   }
-
-  // componentDidUpdate(prevProps, prevState, snapshot) {
-  //   if (prevState.currentVideo.interactor !== this.state.currentVideo.interactor) {
-  //     console.log('###########state interactor changed');
-  //     console.log(prevState.currentVideo.interactor, this.state.currentVideo.interactor);
-  //   }
-  // }
-
 
   render() {
     let currentVideo = this.state.currentVideo;
