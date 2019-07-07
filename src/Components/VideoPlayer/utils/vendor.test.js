@@ -18,6 +18,16 @@ test('it gets the vendor name from url', () => {
 test('it gets the youtube video id from url', () => {
     expect(getYoutubeVideoId('https://youtube.com/watch/?v=abc12345678'))
         .toBe('abc12345678');
+
+    expect(getYoutubeVideoId('youtube.com/watch/?v=abc12345678'))
+        .toBe('abc12345678');
+
+    expect(getYoutubeVideoId('youtu.be/abc12345678'))
+        .toBe('abc12345678');
+
+    expect(getYoutubeVideoId('https://example.com/youtube.com/')).toBe(null);
+
+    expect(getYoutubeVideoId('https://example.com/youtu.be/')).toBe(null);
     
     expect(getYoutubeVideoId('https://youtube.com/watch/?v=abc12345_RXz678'))
         .toBe('abc12345_RXz678');
@@ -28,7 +38,7 @@ test('it gets the youtube video id from url', () => {
     expect(getYoutubeVideoId('https://youtube.com/watch/?v=abc1-2345-RXz-678'))
         .toBe('abc1-2345-RXz-678');
 
-    expect(getYoutubeVideoId('https://youtube.com/watch/?v=abc1_2345_RXz_678'))
+    expect(getYoutubeVideoId('https://youtube.com/watch/?v=abc1_2345_RXz_678&s=456'))
         .toBe('abc1_2345_RXz_678');
 
     expect(getYoutubeVideoId('https://youtube.com/watch/?v=abc1_2345-RXz_678-12'))
