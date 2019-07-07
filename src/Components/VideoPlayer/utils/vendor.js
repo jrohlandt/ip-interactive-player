@@ -1,4 +1,3 @@
-import { VENDOR } from '../../../utils/constants';
 import { VENDORS } from '../Constants';
 function getVendor(url) {
 

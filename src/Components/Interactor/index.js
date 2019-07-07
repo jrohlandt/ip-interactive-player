@@ -1,9 +1,9 @@
 import React from 'react';
 import './styles.css';
 import { buildStructure } from '../../utils/tree';
-import { ACTIONS, STATES, ON_PLAYER_STATE_CHANGE, ON_TIME_UPDATE } from '../../utils/constants';
+import { STATES, ON_PLAYER_STATE_CHANGE, ON_TIME_UPDATE } from '../../utils/constants';
 import Ajax from '../../utils/ajax';
-import { isProduction } from '../../utils/env';
+// import { isProduction } from '../../utils/env';
 import VideoPlayer from '../VideoPlayer';
 
 class Interactor extends React.Component {
@@ -33,8 +33,6 @@ class Interactor extends React.Component {
   }
 
   changeVideo(video) {
-    console.log('----- CHANGE VIDEO -----', video);
-
     let state = {...this.state};
     state.currentVideo = {
         ...video,
@@ -76,6 +74,8 @@ class Interactor extends React.Component {
         if (currentVideo.currentTime >= interactor.start_time) {
           return true;
         }
+      default:
+        return false;
     }
 
     return false;
@@ -130,6 +130,8 @@ class Interactor extends React.Component {
             break;
           case STATES.CUED:
             break;
+          default:
+            break;
         }
         currentVideo.playbackState = message.params.playbackState;
         state.currentVideo = currentVideo;
@@ -152,11 +154,14 @@ class Interactor extends React.Component {
   }
 
   componentDidMount() {
-    let url = `${process.env.PUBLIC_URL}/data/project_1.json`;
-    if (isProduction()) {
-      const projectId = document.head.querySelector('meta[name="project-id"]').getAttribute('content');
-      url = `/projects/${projectId}`;
-    }
+
+    const projectId = window.location.search.replace('?projectId=', '');
+    // return;
+    // // let url = `${process.env.PUBLIC_URL}/data/project_1.json`;
+    // // if (isProduction()) {
+    //   const projectId = document.head.querySelector('meta[name="project-id"]').getAttribute('content');
+    const url = `/api/projects/${projectId}`;
+    // // }
 
     Ajax.get(url)
       .then(res => {
@@ -197,9 +202,6 @@ class Interactor extends React.Component {
 
     return (
       <div className="wrapper">
-          <header>
-              <div className="logo"><img src="/images/pp2-logo-white.png" alt="" /></div>
-          </header>
           <div className="interactor-wrapper">
             { interactionMarkup }
             { 

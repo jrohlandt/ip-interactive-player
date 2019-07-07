@@ -140,10 +140,8 @@ class YoutubePlayer extends React.Component {
       const duration = this.player.getDuration();
       // state.duration = this.player.getDuration();
       if (!isNaN(duration)) {
-        console.log('if is a number', duration);
         state.duration = duration;
       }
-      console.log('state duration: ', duration);
     }
     
     const currTime = this.player.getCurrentTime();
