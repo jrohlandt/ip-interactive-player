@@ -155,13 +155,14 @@ class Interactor extends React.Component {
 
   componentDidMount() {
 
-    const projectId = window.location.search.replace('?projectId=', '');
-    // return;
-    // // let url = `${process.env.PUBLIC_URL}/data/project_1.json`;
-    // // if (isProduction()) {
-    //   const projectId = document.head.querySelector('meta[name="project-id"]').getAttribute('content');
-    const url = `/api/projects/${projectId}`;
-    // // }
+   
+    let url = '';
+    if (window.location.search.replace('?loadDummyProject=', '') === 'true') {
+      url = `${process.env.PUBLIC_URL}/data/project_1.json`;
+    } else {
+     const projectId = window.location.search.replace('?projectId=', '');
+     url = `/api/projects/${projectId}`;
+    }
 
     Ajax.get(url)
       .then(res => {
@@ -170,7 +171,6 @@ class Interactor extends React.Component {
             this.videoTree = buildStructure(res.project.nodes);
             // console.log('video tree', this.videoTree);
             this.changeVideo(this.videoTree);
-
           }
         }
       })
