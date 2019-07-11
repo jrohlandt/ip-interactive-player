@@ -29,15 +29,17 @@ class HTML5Player extends React.Component {
     }
 
   onPlayerReady() {
+
     this.setState({ready: true});
+
     this.player = document.getElementById('player').getElementsByTagName('video')[0];
     if (this.state.playbackState === STATES.UNSTARTED && this.props.autoplay) {
-        setTimeout(_ => this.doAction(ACTIONS.PLAY), 100); // wait for React to setState({ready: true})
+        console.log('HTML5 autoplay');
+        setTimeout(() => this.doAction(ACTIONS.PLAY), 100); // wait for React to setState({ready: true})
     }
   }
 
   onPlayerStateChange(playbackState) {
-    console.log('pp: ', playbackState);
     if (isValidState(playbackState)) {
       this.props.updatePlaybackState(playbackState);
       this.setState({playbackState});
@@ -66,10 +68,11 @@ class HTML5Player extends React.Component {
 
     switch (action) {
       case(ACTIONS.PLAY):
+         console.log('play action');
          this.player.play()
             .catch(err => {
                 console.warn(err);
-               this.player.muted = true; // todo need to set state to muted as well somehow.
+               this.player.muted = true;
                this.player.play()
                     .catch(err => console.error(err));
                 this.setState({muted: true});                

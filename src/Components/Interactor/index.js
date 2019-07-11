@@ -207,7 +207,7 @@ class Interactor extends React.Component {
             { 
                 this.state.currentVideo.url 
                     ?   <VideoPlayer
-                            autoPlay={true}
+                            autoplay={true}
                             url={this.state.currentVideo.url}
                             forceReload={this.state.forceReload}
                             resetForceReload={this.resetForceReload}

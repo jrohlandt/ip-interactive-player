@@ -1,22 +1,42 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import styles from './PlayerWindow.module.css';
 import './styles.css';
 
 import { STATES, VENDORS, ACTIONS } from './Constants';
 
-const PlayerWindow = function(props) {
-    return (
+class PlayerWindow extends React.Component {
+
+    componentDidCatch(error, info) {
+      // You can also log the error to an error reporting service
+      console.error('PlayerWindow: ', error, info);
+    }
+
+    render() {
+      const props = this.props;
+      return (
         <div className="wrapper">
   
           <div className="player-container">
+
+            { 
+              props.muted === true 
+                ? <div className={styles.mutedOverlay}>
+                    muted
+                  </div>
+                : ''
+            }
+
             { 
               props.vendor === VENDORS.HTML5 && props.playbackState === STATES.BUFFERING 
-                ? <div className="player-buffering-overlay">
+                ? <div className={styles.bufferingOverlay}>
                     buffering
                   </div>
                 : ''
             }
             
+            
+
               {/* <!-- Player element --> */}
               <div id="player" data-src="">
                 {
@@ -72,6 +92,8 @@ const PlayerWindow = function(props) {
   
       </div>
     );
+    }
+    
 };
 
 PlayerWindow.propTypes = {

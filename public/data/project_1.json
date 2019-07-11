@@ -7,7 +7,7 @@
                 "id": 10,
                 "parent_id": 0,
                 "title": "parent",
-                "url": "https://www.youtube.com/watch?v=Sh6lK57Cuk4",
+                "url": "https://www.youtube.com/watch?v=ahCwqrYpIuM",
                 "interactor": {"enabled": true, "type": "custom_time", "start_time": 5}
             },
         
@@ -28,7 +28,7 @@
             {
                 "id": 1889,
                 "parent_id": 10,
-                "title": "child 2",
+                "title": "vid 2.2",
                 "url": "https://www.youtube.com/watch?v=783ccP__No8",
                 "interactor": {"enabled": true, "type": "on_start"}
 
@@ -51,8 +51,8 @@
             {
                 "id": 1888,
                 "parent_id": 10,
-                "title": "child 1",
-                "url": ""
+                "title": "vid 2.1",
+                "url": "https://staging.magiwebsa.com/donotdelete/video/PayKickstart-RoRhYTawSls.mp4"
             },
         
             {

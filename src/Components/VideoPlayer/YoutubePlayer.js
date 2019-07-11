@@ -45,7 +45,7 @@ class YoutubePlayer extends React.Component {
     this.setState({ready: true});
     if (this.state.playbackState === STATES.UNSTARTED && this.props.autoplay) {
         // wait for React to setState({ready: true})
-        setTimeout(_ => {
+        setTimeout(() => {
           this.doAction(ACTIONS.PLAY);
           this.doAction(ACTIONS.SEEK_TO, {currentTime: 0});
         }
@@ -76,11 +76,21 @@ class YoutubePlayer extends React.Component {
 
     switch (action) {
       case(ACTIONS.PLAY):
+        // play video
         this.player.playVideo();
+        // and if finished playing, restart the main loop to play it again.
         if (this.state.playbackState === STATES.ENDED) {
-          // video finished playing, to play it again, restart the main loop.
           this.startMainLoop();
         }
+
+        // if the vidoe is still not playing, then mute it and then play.
+        setTimeout(() => {
+          if (this.state.playbackState === STATES.UNSTARTED) {
+            this.player.mute();
+            this.player.playVideo();
+            this.setState({muted: true});
+          }
+        }, 1000);
         break;
       case (ACTIONS.PAUSE):
        this.player.pauseVideo();
@@ -211,7 +221,6 @@ class YoutubePlayer extends React.Component {
 
   render() {
     return (
-      <React.Fragment>
         <PlayerWindow 
           vendor={VENDORS.YOUTUBE}
           duration={this.state.duration}
@@ -223,7 +232,6 @@ class YoutubePlayer extends React.Component {
           doAction={this.doAction}
           handleProgressClick={this.handleProgressClick}
         />
-      </React.Fragment>
     );  
   }
   

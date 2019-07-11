@@ -79,6 +79,7 @@ class VideoPlayer extends React.Component {
 
     switch(getVendor(props.url)) {
       case VENDORS.HTML5: 
+        // console.log('props: ', props);
         return (
           <HTML5Player 
             {...props} 
