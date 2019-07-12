@@ -10,6 +10,7 @@ class Interactor extends React.Component {
 
   state;
   videoTree;
+  autoplay = false;
   constructor(props) {
     super(props);
 
@@ -81,18 +82,6 @@ class Interactor extends React.Component {
     return false;
   }
 
-  // getInteractor(video) {
-
-  //   if (typeof this.state.currentVideo.interactor === 'undefined') return false;
-  //   let interactor = this.state.currentVideo.interactor;
-
-  //   if (interactor.enabled !== true) return false;
-
-  //   if (['on_start', 'on_end', 'custom_time'].indexOf(interactor.type) !== -1) {
-  //     return interactor;
-  //   }
-  // }
-
   messageFromVideoPlayer(obj) {
       if (typeof obj.message === 'undefined' || typeof obj.message.name === 'undefined') return;
       const message = obj.message;
@@ -155,21 +144,28 @@ class Interactor extends React.Component {
 
   componentDidMount() {
 
-   
+    const parsedURL = new URL(window.location.href);
+    const projectId = parsedURL.searchParams.get('projectId');
+    const autoplay = parsedURL.searchParams.get('autoplay');
+    const loadDummyProject = parsedURL.searchParams.get('loadDummyProject');
+
+    console.log(projectId, autoplay, typeof loadDummyProject);
+
     let url = '';
-    if (window.location.search.replace('?loadDummyProject=', '') === 'true') {
+    if (loadDummyProject === 'true') {
       url = `${process.env.PUBLIC_URL}/data/project_1.json`;
     } else {
-     const projectId = window.location.search.replace('?projectId=', '');
      url = `/api/projects/${projectId}`;
     }
-
+    
     Ajax.get(url)
       .then(res => {
         if (typeof res.project !== 'undefined') {
           if (res.project.nodes.length > 0) {
             this.videoTree = buildStructure(res.project.nodes);
             // console.log('video tree', this.videoTree);
+            this.autoplay = autoplay !== null ? autoplay !== 'false' : res.project.settings.autoplay;
+            // console.log('autoplay', this.autoplay);
             this.changeVideo(this.videoTree);
           }
         }
@@ -207,7 +203,7 @@ class Interactor extends React.Component {
             { 
                 this.state.currentVideo.url 
                     ?   <VideoPlayer
-                            autoplay={true}
+                            autoplay={this.autoplay}
                             url={this.state.currentVideo.url}
                             forceReload={this.state.forceReload}
                             resetForceReload={this.resetForceReload}

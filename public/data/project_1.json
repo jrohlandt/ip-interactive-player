@@ -2,7 +2,7 @@
     "project": {
         "id": 1,
         "title": "Example Project 1", 
-        "settings": {"autoplay": false},
+        "settings": {"autoplay": true},
         "nodes":  [
             {
                 "id": 10,
