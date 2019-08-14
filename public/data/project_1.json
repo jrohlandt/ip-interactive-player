@@ -1,76 +1,157 @@
 {
     "project": {
         "id": 1,
-        "title": "Example Project 1", 
-        "settings": {"autoplay": true},
-        "nodes":  [
+        "title": "Example Project 1",
+        "settings": {
+            "autoplay": true
+        },
+        "nodes": [
             {
                 "id": 10,
                 "parent_id": 0,
                 "title": "parent",
-                "url": "https://www.youtube.com/watch?v=ahCwqrYpIuM",
-                "interactor": {"enabled": true, "type": "custom_time", "start_time": 5}
+                "url": "https://www.youtube.com/watch?v=O1KuDETLqVw",
+                "playback_start_time": 5,
+                "playback_end_time": 120,
+                "interactions": {
+                    "fork": {
+                        "enabled": true,
+                        "type": "custom_time",
+                        "start_time": 40,
+                        "allow_skip": true
+                    },
+                    "tails": [
+                        {
+                            "start_time": 10,
+                            "end_time": 32,
+                            "label": "click for info 1",
+                            "content": "hello this is the content text 1",
+                            "coordinates": {
+                                "10": {
+                                    "x": 201,
+                                    "y": 253
+                                },
+                                "11": {
+                                    "x": 201,
+                                    "y": 253
+                                },
+                                "12": {
+                                    "x": 201,
+                                    "y": 253
+                                },
+                                "13": {
+                                    "x": 230,
+                                    "y": 200
+                                },
+                                "14": {
+                                    "x": 230,
+                                    "y": 200
+                                },
+                                "15": {
+                                    "x": 230,
+                                    "y": 200
+                                }
+                            }
+                        },
+                        {
+                            "start_time": 20,
+                            "end_time": 35,
+                            "label": "click for info 2",
+                            "content": "hello this is the content text 2",
+                            "coordinates": {
+                                "10": {
+                                    "y": 201,
+                                    "x": 253
+                                },
+                                "11": {
+                                    "y": 201,
+                                    "x": 253
+                                },
+                                "12": {
+                                    "y": 201,
+                                    "x": 253
+                                },
+                                "13": {
+                                    "y": 230,
+                                    "x": 200
+                                },
+                                "14": {
+                                    "y": 230,
+                                    "x": 200
+                                },
+                                "15": {
+                                    "y": 230,
+                                    "x": 200
+                                }
+                            }
+                        }
+                    ]
+                }
             },
-        
             {
                 "id": 3903209,
                 "parent_id": 33,
                 "title": "great grand child 2",
                 "url": "https://www.youtube.com/watch?v=ahCwqrYpIuM"
             },
-        
             {
                 "id": 677,
                 "parent_id": 1888,
                 "title": "grand child 1",
                 "url": ""
             },
-        
             {
                 "id": 1889,
                 "parent_id": 10,
                 "title": "vid 2.2",
                 "url": "https://www.youtube.com/watch?v=783ccP__No8",
-                "interactor": {"enabled": true, "type": "on_start"}
-
-            }, 
-        
+                "interactions": {
+                    "fork": {
+                        "enabled": true,
+                        "type": "on_start",
+                        "start_time": 5,
+                        "allow_skip": true
+                    }
+                }
+            },
             {
                 "id": 33,
                 "parent_id": 1889,
                 "title": "grand child 2",
                 "url": "https://www.youtube.com/watch?v=ahCwqrYpIuM"
             },
-        
             {
                 "id": 2903209,
                 "parent_id": 33,
                 "title": "great grand child 1",
                 "url": "https://www.youtube.com/watch?v=ahCwqrYpIuM"
             },
-    
             {
                 "id": 1888,
                 "parent_id": 10,
                 "title": "vid 2.1",
                 "url": "https://staging.magiwebsa.com/donotdelete/video/PayKickstart-RoRhYTawSls.mp4"
             },
-        
             {
                 "id": 34,
                 "parent_id": 1889,
                 "title": "grand child 3",
                 "url": "https://www.youtube.com/watch?v=ahCwqrYpIuM",
-                "interactor": {"enabled": true, "type": "on_end"}
+                "interactions": {
+                    "fork": {
+                        "enabled": true,
+                        "type": "on_end",
+                        "start_time": 5,
+                        "allow_skip": true
+                    }
+                }
             },
-
             {
                 "id": 9009,
                 "parent_id": 34,
                 "title": "grand child 3.1",
                 "url": "https://www.youtube.com/watch?v=ahCwqrYpIuM"
             },
-
             {
                 "id": 9010,
                 "parent_id": 34,
