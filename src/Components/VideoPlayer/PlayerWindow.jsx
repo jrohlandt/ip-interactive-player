@@ -29,9 +29,9 @@ class PlayerWindow extends React.Component {
                   left: t.x,
                   zIndex: 20,
                   width: "150px",
-                  height: "75px",
-                  color: "black",
-                  backgroundColor: "white"
+                  height: "40px",
+                  color: "blue",
+                  backgroundColor: "rgba(178,34,34, .7)"
                 }}
               >
                 {t.label}
