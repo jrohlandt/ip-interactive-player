@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Tails Prototype</title>
+
+    <style>
+      html,
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 0;
+        margin: 0;
+      }
+
+      .wrapper {
+        width: 80%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 0;
+        margin: 0;
+      }
+
+      .main {
+        position: relative;
+        width: 80%;
+        height: auto;
+        background-color: green;
+      }
+
+      .main img {
+        width: 100%;
+      }
+
+      #tail1 {
+        position: absolute;
+        top: -500px;
+        left: -500px;
+        width: 10px;
+        height: 10px;
+        background: rgb(6, 29, 241);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="main">
+        <div id="tail1"></div>
+        <img src="lowrider.png" alt="" />
+      </div>
+    </div>
+
+    <script>
+      window.onload = function() {
+        let mainDiv = document.querySelector(".main");
+        let background = document.querySelector(".main img");
+        const dimensions = mainDiv.getBoundingClientRect();
+        let compStyles = window.getComputedStyle(mainDiv);
+        console.log("dd", compStyles.getPropertyValue("height"));
+        const d = {
+          "clientWidth: ": mainDiv.clientWidth,
+          "clientHeight: ": mainDiv.clientHeight,
+          "offsetWidth: ": mainDiv.offsetWidth,
+          "offsetHeight: ": mainDiv.offsetHeight,
+          "scrollWidth: ": mainDiv.scrollWidth,
+          "scrollHeight: ": mainDiv.scrollHeight,
+          dimensions
+        };
+        console.log(d);
+
+        const referenceData = {
+          width: 523,
+          height: 348,
+          left: 135,
+          top: 160
+        };
+
+        const r = referenceData;
+
+        console.log(
+          "rrr: ",
+          (r.left / r.width) * 100,
+          (r.top / r.height) * 100
+        );
+        let dot = document.querySelector("#tail1");
+        dot.style.top = "46%";
+        dot.style.left = "26%";
+
+        mainDiv.addEventListener("click", e => {
+          console.log(
+            e.clientX - dimensions.left,
+            e.clientY - dimensions.top,
+            e.screenX
+          );
+        });
+      };
+    </script>
+  </body>
+</html>
