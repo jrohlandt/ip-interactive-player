@@ -1,0 +1,42 @@
+html,
+body {
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 0;
+  margin: 0;
+}
+
+.wrapper {
+  width: 80%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0;
+  margin: 0;
+}
+
+.main {
+  position: relative;
+  width: 80%;
+  height: auto;
+  background-color: green;
+}
+
+.main img {
+  width: 100%;
+}
+
+#tail1 {
+  position: absolute;
+  top: -500px;
+  left: -500px;
+  width: 100px;
+  height: 45px;
+  background: rgb(6, 29, 241);
+}
