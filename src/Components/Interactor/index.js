@@ -22,7 +22,7 @@ class Interactor extends React.Component {
         currentTime: 0,
         id: 0,
         url: "",
-        interactions: {},
+        interactions: { fork: { enabled: false, type: "on_end" }, tails: [] },
         nodes: [],
         showInteractor: false
       },
@@ -149,7 +149,7 @@ class Interactor extends React.Component {
       }
 
       // show tails
-      if (currentVideo.interactions.tails) {
+      if (currentVideo.interactions && currentVideo.interactions.tails) {
         // const tails = currentVideo.interactions.tails.filter(
         //   t => t.coordinates[message.params.currentTime] === 1
         // );
@@ -213,6 +213,7 @@ class Interactor extends React.Component {
   componentDidMount() {
     const parsedURL = new URL(window.location.href);
     const projectId = parsedURL.searchParams.get("projectId");
+    let nodeId = parsedURL.searchParams.get("nodeId");
     const autoplay = parsedURL.searchParams.get("autoplay");
     const loadDummyProject = parsedURL.searchParams.get("loadDummyProject");
 
@@ -229,7 +230,10 @@ class Interactor extends React.Component {
       .then(res => {
         if (typeof res.project !== "undefined") {
           if (res.project.nodes.length > 0) {
-            this.videoTree = buildStructure(res.project.nodes);
+            if (nodeId !== null) {
+              nodeId = parseInt(nodeId, 10);
+            }
+            this.videoTree = buildStructure(res.project.nodes, nodeId);
             // console.log('video tree', this.videoTree);
             this.autoplay =
               autoplay !== null
