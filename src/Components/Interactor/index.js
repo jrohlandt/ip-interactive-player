@@ -223,7 +223,7 @@ class Interactor extends React.Component {
     if (loadDummyProject === "true") {
       url = `${process.env.PUBLIC_URL}/data/project_1.json`;
     } else {
-      url = `/api/projects/${projectId}`;
+      url = `/player/${projectId}`;
     }
 
     Ajax.get(url)
@@ -232,7 +232,10 @@ class Interactor extends React.Component {
           if (res.project.nodes.length > 0) {
             if (nodeId !== null) {
               nodeId = parseInt(nodeId, 10);
+            } else {
+              nodeId = 0;
             }
+            console.log(res.project.nodes);
             this.videoTree = buildStructure(res.project.nodes, nodeId);
             // console.log('video tree', this.videoTree);
             this.autoplay =
