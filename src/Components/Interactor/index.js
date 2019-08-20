@@ -217,8 +217,6 @@ class Interactor extends React.Component {
     const autoplay = parsedURL.searchParams.get("autoplay");
     const loadDummyProject = parsedURL.searchParams.get("loadDummyProject");
 
-    console.log(projectId, autoplay, typeof loadDummyProject);
-
     let url = "";
     if (loadDummyProject === "true") {
       url = `${process.env.PUBLIC_URL}/data/project_1.json`;
@@ -235,14 +233,11 @@ class Interactor extends React.Component {
             } else {
               nodeId = 0;
             }
-            console.log(res.project.nodes);
             this.videoTree = buildStructure(res.project.nodes, nodeId);
-            // console.log('video tree', this.videoTree);
             this.autoplay =
               autoplay !== null
                 ? autoplay !== "false"
                 : res.project.settings.autoplay;
-            // console.log('autoplay', this.autoplay);
             this.changeVideo(this.videoTree);
           }
         }
