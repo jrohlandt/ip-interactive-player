@@ -19,7 +19,7 @@ class Interactor extends React.Component {
         currentTime: 0,
         id: 0,
         url: '',
-        interactor: {enabled: false, type: 'on_end', start_time: 0},
+        interactions: {fork: {enabled: false, type: 'on_end', start_time: 0}},
         nodes: [],
         showInteractor: false, 
       },
@@ -59,10 +59,10 @@ class Interactor extends React.Component {
    * @param {string} type // e.g. on_start, on_end or custom_time
    */
   shouldShowInteractor(currentVideo, type) {
+
+    if (typeof currentVideo.interactions.fork === 'undefined') return false;
     
-    if (typeof currentVideo.interactor === 'undefined') return false;
-    
-    let interactor = currentVideo.interactor;
+    let interactor = currentVideo.interactions.fork; // for now just hard code fork but later there will be other interactions (e.g. CTA, Optin etc)
     if (interactor.enabled !== true) return false;
     if (type !== interactor.type) return false;
 
@@ -103,7 +103,7 @@ class Interactor extends React.Component {
           case STATES.PLAYING:
             if (this.shouldShowInteractor(currentVideo, 'on_start')) {
               currentVideo.showInteractor = true;
-              currentVideo.interactor.enabled = false;
+              currentVideo.interactions.fork.enabled = false;
               state.pauseCurrentVideo = true;
             }
             break;
@@ -111,9 +111,10 @@ class Interactor extends React.Component {
             // TODO show thumbnail
             break;
           case STATES.ENDED:
+
             if (this.shouldShowInteractor(currentVideo, 'on_end')) {
-                currentVideo.showInteractor = true;
-                currentVideo.interactor.enabled = false;
+              currentVideo.showInteractor = true;
+                currentVideo.interactions.fork.enabled = false;
                 // state.pauseCurrentVideo = true; // video already ended 
             }
             break;
@@ -133,7 +134,7 @@ class Interactor extends React.Component {
         
         if (this.shouldShowInteractor(currentVideo, 'custom_time')) {
           currentVideo.showInteractor = true;
-          currentVideo.interactor.enabled = false;
+          currentVideo.interactions.fork.enabled = false;
           state.pauseCurrentVideo = true;
         }
 
