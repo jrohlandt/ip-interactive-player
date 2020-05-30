@@ -50,14 +50,15 @@ export default {
 
 		return new Promise(
 			( resolve, reject ) => {
-				axios.defaults.headers['X-Requested-With'] = 'XMLHttpRequest'; // Tell server that this is a ajax request.
-				axios.defaults.baseUrl = config.baseURL;
-				// const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-				// if (token) {
-				// 	axios.defaults.headers['CSRF-Token'] = token;
-				// }
-				// axios.defaults.withCredentials = true; // Send cookie to server.
-				axios[ requestType.toLowerCase() ]( url, data )
+				const instance = axios.create({
+					baseURL: config.baseURL,
+					headers: {
+						"X-Requested-With": "XMLHttpRequest",
+						// Authorization: config.token
+					},
+					withCredentials: true,
+				});
+				instance[ requestType.toLowerCase() ]( url, data )
 					.then(response => resolve(response.data))
 					.catch(error => {
 						if (error.response) {
