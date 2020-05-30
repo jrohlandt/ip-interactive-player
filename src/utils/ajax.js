@@ -1,6 +1,6 @@
 import axios from 'axios';
 import qs from 'qs';
-
+import config from './config';
 
 export default {
 
@@ -51,6 +51,7 @@ export default {
 		return new Promise(
 			( resolve, reject ) => {
 				axios.defaults.headers['X-Requested-With'] = 'XMLHttpRequest'; // Tell server that this is a ajax request.
+				axios.defaults.baseUrl = config.baseURL;
 				// const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 				// if (token) {
 				// 	axios.defaults.headers['CSRF-Token'] = token;

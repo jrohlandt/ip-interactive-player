@@ -156,7 +156,7 @@ class Interactor extends React.Component {
     if (loadDummyProject === 'true') {
       url = `${process.env.PUBLIC_URL}/data/project_1.json`;
     } else {
-     url = `/api/projects/${projectId}`;
+     url = `/api/player/get-details/${projectId}`;
     }
     
     Ajax.get(url)
