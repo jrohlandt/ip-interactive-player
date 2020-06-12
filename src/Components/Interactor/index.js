@@ -19,9 +19,9 @@ class Interactor extends React.Component {
         currentTime: 0,
         id: 0,
         url: '',
-        interactions: {fork: {enabled: false, type: 'on_end', start_time: 0}},
+        interactions: { fork: { enabled: false, type: 'on_end', start_time: 0 } },
         nodes: [],
-        showInteractor: false, 
+        showInteractor: false,
       },
       pauseCurrentVideo: false,
       forceReload: false, // if the next video has the same url, force the video player component to play it.
@@ -34,11 +34,11 @@ class Interactor extends React.Component {
   }
 
   changeVideo(video) {
-    let state = {...this.state};
+    let state = { ...this.state };
     state.currentVideo = {
-        ...video,
-        currentTime: 0,
-        showInteractor: false,
+      ...video,
+      currentTime: 0,
+      showInteractor: false,
     }
     state.pauseCurrentVideo = false;
     if (state.currentVideo.url === this.state.currentVideo.url) {
@@ -48,7 +48,7 @@ class Interactor extends React.Component {
   }
 
   resetForceReload() {
-    this.setState({forceReload: false});
+    this.setState({ forceReload: false });
   }
 
   /**
@@ -60,13 +60,15 @@ class Interactor extends React.Component {
    */
   shouldShowInteractor(currentVideo, type) {
 
+    if (typeof currentVideo.interactions === 'undefined') return false;
     if (typeof currentVideo.interactions.fork === 'undefined') return false;
-    
+
+
     let interactor = currentVideo.interactions.fork; // for now just hard code fork but later there will be other interactions (e.g. CTA, Optin etc)
     if (interactor.enabled !== true) return false;
     if (type !== interactor.type) return false;
 
-    switch(type) {
+    switch (type) {
       case 'on_start':
         return true;
       case 'on_end':
@@ -75,6 +77,7 @@ class Interactor extends React.Component {
         if (currentVideo.currentTime >= interactor.start_time) {
           return true;
         }
+        break;
       default:
         return false;
     }
@@ -83,64 +86,64 @@ class Interactor extends React.Component {
   }
 
   messageFromVideoPlayer(obj) {
-      if (typeof obj.message === 'undefined' || typeof obj.message.name === 'undefined') return;
-      const message = obj.message;
+    if (typeof obj.message === 'undefined' || typeof obj.message.name === 'undefined') return;
+    const message = obj.message;
 
-      let state = {...this.state};
-      let currentVideo = {...this.state.currentVideo};
+    let state = { ...this.state };
+    let currentVideo = { ...this.state.currentVideo };
 
-      // On State Change
-      if (message.name === ON_PLAYER_STATE_CHANGE) {
+    // On State Change
+    if (message.name === ON_PLAYER_STATE_CHANGE) {
 
-        const playbackState = message.params.playbackState;
+      const playbackState = message.params.playbackState;
 
-        switch(playbackState) {
-          case STATES.UNSTARTED:
-            // TODO show thumbnail
-            break;
-          case STATES.BUFFERING:
-            break;
-          case STATES.PLAYING:
-            if (this.shouldShowInteractor(currentVideo, 'on_start')) {
-              currentVideo.showInteractor = true;
-              currentVideo.interactions.fork.enabled = false;
-              state.pauseCurrentVideo = true;
-            }
-            break;
-          case STATES.PAUSED:
-            // TODO show thumbnail
-            break;
-          case STATES.ENDED:
+      switch (playbackState) {
+        case STATES.UNSTARTED:
+          // TODO show thumbnail
+          break;
+        case STATES.BUFFERING:
+          break;
+        case STATES.PLAYING:
+          if (this.shouldShowInteractor(currentVideo, 'on_start')) {
+            currentVideo.showInteractor = true;
+            currentVideo.interactions.fork.enabled = false;
+            state.pauseCurrentVideo = true;
+          }
+          break;
+        case STATES.PAUSED:
+          // TODO show thumbnail
+          break;
+        case STATES.ENDED:
 
-            if (this.shouldShowInteractor(currentVideo, 'on_end')) {
-              currentVideo.showInteractor = true;
-                currentVideo.interactions.fork.enabled = false;
-                // state.pauseCurrentVideo = true; // video already ended 
-            }
-            break;
-          case STATES.CUED:
-            break;
-          default:
-            break;
-        }
-        currentVideo.playbackState = message.params.playbackState;
-        state.currentVideo = currentVideo;
-        this.setState(state);
+          if (this.shouldShowInteractor(currentVideo, 'on_end')) {
+            currentVideo.showInteractor = true;
+            currentVideo.interactions.fork.enabled = false;
+            // state.pauseCurrentVideo = true; // video already ended 
+          }
+          break;
+        case STATES.CUED:
+          break;
+        default:
+          break;
+      }
+      currentVideo.playbackState = message.params.playbackState;
+      state.currentVideo = currentVideo;
+      this.setState(state);
+    }
+
+    // On Time Update
+    if (message.name === ON_TIME_UPDATE) {
+      currentVideo.currentTime = message.params.currentTime;
+
+      if (this.shouldShowInteractor(currentVideo, 'custom_time')) {
+        currentVideo.showInteractor = true;
+        currentVideo.interactions.fork.enabled = false;
+        state.pauseCurrentVideo = true;
       }
 
-      // On Time Update
-      if (message.name === ON_TIME_UPDATE) {
-        currentVideo.currentTime = message.params.currentTime;
-        
-        if (this.shouldShowInteractor(currentVideo, 'custom_time')) {
-          currentVideo.showInteractor = true;
-          currentVideo.interactions.fork.enabled = false;
-          state.pauseCurrentVideo = true;
-        }
-
-        state.currentVideo = currentVideo;
-        this.setState(state);
-      }
+      state.currentVideo = currentVideo;
+      this.setState(state);
+    }
   }
 
   componentDidMount() {
@@ -154,11 +157,12 @@ class Interactor extends React.Component {
 
     let url = '';
     if (loadDummyProject === 'true') {
+      console.log('laod dummy');
       url = `${process.env.PUBLIC_URL}/data/project_1.json`;
     } else {
-     url = `/api/player/get-details/${projectId}`;
+      url = `/api/player/get-details/${projectId}`;
     }
-    
+
     Ajax.get(url)
       .then(res => {
         if (typeof res.project !== 'undefined') {
@@ -176,21 +180,21 @@ class Interactor extends React.Component {
 
   render() {
     let currentVideo = this.state.currentVideo;
-    let interactionMarkup = <div style={{'display': 'none'}}></div>;
+    let interactionMarkup = <div style={{ 'display': 'none' }}></div>;
 
     if (currentVideo.showInteractor) {
       interactionMarkup = (
         <div className="current-interaction">
-          { 
+          {
             currentVideo.nodes.map(n => {
               return (
-                  <button 
-                    key={n.id}
-                    onClick={() => this.changeVideo(n)} 
-                  >
-                    {n.title}
-                  </button>
-                );
+                <button
+                  key={n.id}
+                  onClick={() => this.changeVideo(n)}
+                >
+                  {n.title}
+                </button>
+              );
             })
           }
         </div>
@@ -199,29 +203,29 @@ class Interactor extends React.Component {
 
     return (
       <div className="wrapper">
-          <div className="interactor-wrapper">
-            { interactionMarkup }
-            { 
-                this.state.currentVideo.url 
-                    ?   <VideoPlayer
-                            autoplay={this.autoplay}
-                            url={this.state.currentVideo.url}
-                            forceReload={this.state.forceReload}
-                            resetForceReload={this.resetForceReload}
-                            pause={this.state.pauseCurrentVideo}
-                            // play={this.state.play}
-                            sendMessageToParent={this.messageFromVideoPlayer}
-                            messageFromInteractor={this.state.messageToVideoPlayer}
-                        />
-                    : 'No video url supplied'
-            }
-          </div>
-          
-          <footer>footer</footer>
+        <div className="interactor-wrapper">
+          {interactionMarkup}
+          {
+            this.state.currentVideo.url
+              ? <VideoPlayer
+                autoplay={this.autoplay}
+                url={this.state.currentVideo.url}
+                forceReload={this.state.forceReload}
+                resetForceReload={this.resetForceReload}
+                pause={this.state.pauseCurrentVideo}
+                // play={this.state.play}
+                sendMessageToParent={this.messageFromVideoPlayer}
+                messageFromInteractor={this.state.messageToVideoPlayer}
+              />
+              : 'No video url supplied'
+          }
+        </div>
+
+        <footer>footer</footer>
       </div>
     );
   }
-  
+
 }
 
 export default Interactor;

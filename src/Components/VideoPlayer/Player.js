@@ -2,9 +2,11 @@ import React from 'react';
 
 import { STATES, VENDORS, ACTIONS } from './Constants';
 import { isValidState, isValidAction } from './Helpers.js';
+import { getVendor } from './utils/vendor';
+import PlayerActions from './PlayerActions';
 import PlayerWindow from './PlayerWindow.js';
 
-class HTML5Player extends React.Component {
+class Player extends React.Component {
 
   constructor(props) {
     super(props);
@@ -13,6 +15,7 @@ class HTML5Player extends React.Component {
 
     this.state = {
       ready: false,
+      vendor: '',
       playbackState: STATES.UNSTARTED,
       muted: false,
       duration: 0,
@@ -26,15 +29,27 @@ class HTML5Player extends React.Component {
 
     this.handleProgressClick = this.handleProgressClick.bind(this);
     this.doAction = this.doAction.bind(this);
+
+    this.getPlayer = this.getPlayer.bind(this);
+    this.play = this.play.bind(this);
+    this.pause = this.pause.bind(this);
+    this.mute = this.mute.bind(this);
+    this.unMute = this.unMute.bind(this);
+    this.seekTo = this.seekTo.bind(this);
+    this.getCurrentTime = this.getCurrentTime.bind(this);
+    this.getDuration = this.getDuration.bind(this);
+  }
+
+  getPlayer() {
+    return PlayerActions[this.state.vendor].getPlayer();
   }
 
   onPlayerReady() {
 
     this.setState({ ready: true });
 
-    this.player = document.getElementById('player').getElementsByTagName('video')[0];
+    this.player = this.getPlayer();
     if (this.state.playbackState === STATES.UNSTARTED && this.props.autoplay) {
-      console.log('HTML5 autoplay');
       setTimeout(() => this.doAction(ACTIONS.PLAY), 100); // wait for React to setState({ready: true})
     }
   }
@@ -49,10 +64,39 @@ class HTML5Player extends React.Component {
   }
 
   onTimeUpdate() {
-    let { currentTime, duration } = this.player;
+    let currentTime = this.getCurrentTime();
+    let duration = this.getDuration();
     duration = isNaN(duration) ? 0 : duration;
     this.props.updateCurrentTime(currentTime);
     this.setState({ currentTime, duration });
+  }
+
+  play() {
+    return PlayerActions[this.state.vendor].play(this.player);
+  }
+
+  pause() {
+    return PlayerActions[this.state.vendor].pause(this.player);
+  }
+
+  mute() {
+    return PlayerActions[this.state.vendor].mute(this.player);
+  }
+
+  unMute() {
+    return PlayerActions[this.state.vendor].unMute(this.player);
+  }
+
+  seekTo(seconds) {
+    return PlayerActions[this.state.vendor].seekTo(this.player, seconds);
+  }
+
+  getCurrentTime() {
+    return PlayerActions[this.state.vendor].getCurrentTime(this.player);
+  }
+
+  getDuration() {
+    return PlayerActions[this.state.vendor].getDuration(this.player);
   }
 
   doAction(action, params = {}) {
@@ -68,29 +112,31 @@ class HTML5Player extends React.Component {
 
     switch (action) {
       case (ACTIONS.PLAY):
-        console.log('play action');
-        this.player.play()
-          .catch(err => {
-            console.warn(err);
-            this.player.muted = true;
-            this.player.play()
-              .catch(err => console.error(err));
-            this.setState({ muted: true });
-          });
+        if (this.state.vendor === VENDORS.HTML5) {
+          this.play()
+            .catch(err => {
+              console.warn(err);
+              this.mute();
+              this.play().catch(err => console.error(err));
+              this.setState({ muted: true });
+            });
+        } else {
+          this.play();
+        }
         break;
       case (ACTIONS.PAUSE):
-        this.player.pause();
+        this.pause();
         break;
       case (ACTIONS.MUTE):
-        this.player.muted = true;
+        this.mute();
         this.setState({ muted: true });
         break;
       case (ACTIONS.UNMUTE):
-        this.player.muted = false;
+        this.unMute();
         this.setState({ muted: false });
         break;
       case (ACTIONS.SEEK_TO):
-        this.player.currentTime = params.currentTime;
+        this.seekTo(params.currentTime);
         break;
       default:
         throw new Error(`Invalid action: ${action}.`);
@@ -103,7 +149,8 @@ class HTML5Player extends React.Component {
   }
 
   componentDidMount() {
-    //
+    this.setState({ vendor: getVendor(this.props.url) });
+    console.log('vendor: ', this.props.url, getVendor(this.props.url));
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -114,34 +161,33 @@ class HTML5Player extends React.Component {
       this.setState({ duration: 0, currentTime: 0 });
     }
 
+    // If new props is pause then pause (if not already paused)
     if (prevProps.pause !== this.props.pause && this.props.pause === true) {
       this.doAction(ACTIONS.PAUSE);
     };
 
     if (prevProps.message === this.props.message) return;
     if (typeof this.props.message.name === 'undefined') return;
-
-    // if (this.props.message.name  === 'pause_playback') {
-    //   this.doAction(ACTIONS.PAUSE);
-    // }
   }
 
   render() {
     return (
       <React.Fragment>
-        <PlayerWindow
-          vendor={VENDORS.HTML5}
-          url={this.props.url}
-          duration={this.state.duration}
-          currentTime={this.state.currentTime}
-          playbackState={this.state.playbackState}
-          muted={this.state.muted}
-          onPlayerReady={this.onPlayerReady}
-          onPlayerStateChange={this.onPlayerStateChange}
-          onTimeUpdate={this.onTimeUpdate}
-          doAction={this.doAction}
-          handleProgressClick={this.handleProgressClick}
-        />
+        {this.state.vendor ?
+          <PlayerWindow
+            vendor={this.state.vendor}
+            url={this.props.url}
+            duration={this.state.duration}
+            currentTime={this.state.currentTime}
+            playbackState={this.state.playbackState}
+            muted={this.state.muted}
+            onPlayerReady={this.onPlayerReady}
+            onPlayerStateChange={this.onPlayerStateChange}
+            onTimeUpdate={this.onTimeUpdate}
+            doAction={this.doAction}
+            handleProgressClick={this.handleProgressClick}
+          /> :
+          ''}
 
       </React.Fragment>
     );
@@ -149,4 +195,4 @@ class HTML5Player extends React.Component {
 
 }
 
-export default HTML5Player;
+export default Player;

@@ -7,93 +7,81 @@ import { STATES, VENDORS, ACTIONS } from './Constants';
 
 class PlayerWindow extends React.Component {
 
-    componentDidCatch(error, info) {
-      // You can also log the error to an error reporting service
-      console.error('PlayerWindow: ', error, info);
-    }
+  componentDidCatch(error, info) {
+    // Can also be logged to an error reporting service
+    console.error('PlayerWindow: ', error, info);
+  }
 
-    render() {
-      const props = this.props;
-      return (
-        <div className="wrapper">
-  
-          <div className="player-container">
+  render() {
+    const props = this.props;
 
-            { 
-              props.muted === true 
-                ? <div className={styles.mutedOverlay}>
-                    muted
-                  </div>
+    const mutedOverlay = <div className={styles.mutedOverlay}>muted</div>;
+    const bufferingOverlay = <div className={styles.bufferingOverlay}>buffering</div>;
+
+    return (
+      <div className="wrapper">
+
+        <div className="player-container">
+          {props.muted ? mutedOverlay : ''}
+          {props.playbackState === STATES.BUFFERING ? bufferingOverlay : ''}
+
+          {/* <!-- Player element --> */}
+          <div id="player" data-src="">
+            {
+              props.vendor === VENDORS.HTML5
+                ? <video
+                  // key={props.url}
+                  src={props.url}
+                  onLoadedMetadata={props.onPlayerReady}
+                  onPlay={() => props.onPlayerStateChange(STATES.PLAYING)}
+                  onPause={() => props.onPlayerStateChange(STATES.PAUSED)}
+                  onEnded={() => props.onPlayerStateChange(STATES.ENDED)}
+                  onWaiting={() => props.onPlayerStateChange(STATES.BUFFERING)}
+                  onPlaying={() => props.onPlayerStateChange(STATES.PLAYING)}
+                  onTimeUpdate={props.onTimeUpdate}
+                />
                 : ''
             }
-
-            { 
-              props.vendor === VENDORS.HTML5 && props.playbackState === STATES.BUFFERING 
-                ? <div className={styles.bufferingOverlay}>
-                    buffering
-                  </div>
-                : ''
-            }
-            
-            
-
-              {/* <!-- Player element --> */}
-              <div id="player" data-src="">
-                {
-                  props.vendor === VENDORS.HTML5 
-                    ? <video 
-                        // key={props.url}
-                        src={props.url}
-                        onLoadedMetadata={props.onPlayerReady}  
-                        onPlay={() => props.onPlayerStateChange(STATES.PLAYING)}
-                        onPause={() => props.onPlayerStateChange(STATES.PAUSED)}
-                        onEnded={() => props.onPlayerStateChange(STATES.ENDED)}
-                        onWaiting={() => props.onPlayerStateChange(STATES.BUFFERING)}
-                        onPlaying={() => props.onPlayerStateChange(STATES.PLAYING)}
-                        onTimeUpdate={props.onTimeUpdate}
-                      />
-                    : ''
-                }
-              </div>
-  
-              {/* <!-- Player Controls --> */}
-              <div className="player-control-bar" >
-  
-                  {/* <!-- todo use webpack to load icons --> */}
-                  <div 
-                    id="play-button"
-                    className={ "play-button " + (props.playbackState === STATES.PLAYING ? 'playing ' : 'paused ')} 
-                    onClick={() => props.doAction(props.playbackState === STATES.PLAYING ? ACTIONS.PAUSE : ACTIONS.PLAY)}
-                  >
-                      <img src="/icons/play-icon.svg" className="play" alt="" />
-                      <img src="/icons/paused-icon.svg" className="pause" alt="" />
-                  </div>
-  
-                  <div className="progress-bar-wrapper">
-                      <progress 
-                        id="progress-bar"  
-                        max={props.duration} 
-                        value={props.currentTime}
-                        onClick={props.handleProgressClick}
-                      ></progress>
-                  </div>
-  
-                  <div 
-                    id="mute-button"
-                    className={"mute-button " + (props.muted === true ? "muted" : "not-muted") }
-                    onClick={() => props.doAction(props.muted ? ACTIONS.UNMUTE : ACTIONS.MUTE)}
-                  >
-                      <img src="/icons/sound-on-icon.svg" className="sound-on" alt="" />
-                      <img src="/icons/sound-off-icon.svg" className="sound-off" alt="" />
-                  </div>
-  
-              </div>
           </div>
-  
+
+          {/* <!-- Player Controls --> */}
+          <div className="player-control-bar" >
+
+            {/* <!-- todo use webpack to load icons --> */}
+            <div
+              id="play-button"
+              className={"play-button " + (props.playbackState === STATES.PLAYING ? 'playing ' : 'paused ')}
+              onClick={() => props.doAction(props.playbackState === STATES.PLAYING ? ACTIONS.PAUSE : ACTIONS.PLAY)}
+            >
+              <img src="/icons/play-icon.svg" className="play" alt="" />
+              <img src="/icons/paused-icon.svg" className="pause" alt="" />
+            </div>
+
+            <div className="progress-bar-wrapper">
+              <progress
+                id="progress-bar"
+                max={props.duration}
+                value={props.currentTime}
+                onClick={props.handleProgressClick}
+              ></progress>
+            </div>
+
+            <div
+              id="mute-button"
+              className={"mute-button " + (props.muted === true ? "muted" : "not-muted")}
+              onClick={() => props.doAction(props.muted ? ACTIONS.UNMUTE : ACTIONS.MUTE)}
+            >
+              <img src="/icons/sound-on-icon.svg" className="sound-on" alt="" />
+              <img src="/icons/sound-off-icon.svg" className="sound-off" alt="" />
+            </div>
+
+          </div>
+        </div>
+
       </div>
     );
-    }
-    
+  }
+
 };
 
 PlayerWindow.propTypes = {

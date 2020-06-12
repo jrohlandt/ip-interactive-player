@@ -1,76 +1,84 @@
 {
     "project": {
         "id": 1,
-        "title": "Example Project 1", 
-        "settings": {"autoplay": true},
-        "nodes":  [
+        "title": "Example Project 1",
+        "settings": {
+            "autoplay": true
+        },
+        "nodes": [
             {
                 "id": 10,
                 "parent_id": 0,
                 "title": "parent",
-                "url": "https://www.youtube.com/watch?v=ahCwqrYpIuM",
-                "interactor": {"enabled": true, "type": "custom_time", "start_time": 5}
+                "url": "https://staging.magiwebsa.com/donotdelete/video/PayKickstart-RoRhYTawSls.mp4",
+                "interactions": {
+                    "fork": {
+                        "enabled": true,
+                        "type": "custom_time",
+                        "start_time": 30
+                    }
+                }
             },
-        
             {
                 "id": 3903209,
                 "parent_id": 33,
                 "title": "great grand child 2",
                 "url": "https://www.youtube.com/watch?v=ahCwqrYpIuM"
             },
-        
             {
                 "id": 677,
                 "parent_id": 1888,
                 "title": "grand child 1",
                 "url": ""
             },
-        
             {
                 "id": 1889,
                 "parent_id": 10,
                 "title": "vid 2.2",
                 "url": "https://www.youtube.com/watch?v=783ccP__No8",
-                "interactor": {"enabled": true, "type": "on_start"}
-
-            }, 
-        
+                "interactions": {
+                    "fork": {
+                        "enabled": true,
+                        "type": "on_start"
+                    }
+                }
+            },
             {
                 "id": 33,
                 "parent_id": 1889,
                 "title": "grand child 2",
                 "url": "https://www.youtube.com/watch?v=ahCwqrYpIuM"
             },
-        
             {
                 "id": 2903209,
                 "parent_id": 33,
                 "title": "great grand child 1",
                 "url": "https://www.youtube.com/watch?v=ahCwqrYpIuM"
             },
-    
             {
                 "id": 1888,
                 "parent_id": 10,
                 "title": "vid 2.1",
                 "url": "https://staging.magiwebsa.com/donotdelete/video/PayKickstart-RoRhYTawSls.mp4"
             },
-        
             {
                 "id": 34,
                 "parent_id": 1889,
                 "title": "grand child 3",
                 "url": "https://www.youtube.com/watch?v=ahCwqrYpIuM",
-                "interactor": {"enabled": true, "type": "on_end"}
+                "interactions": {
+                    "fork": {
+                        "enabled": true,
+                        "type": "on_end"
+                    }
+                }
             },
-
             {
                 "id": 9009,
                 "parent_id": 34,
                 "title": "grand child 3.1",
                 "url": "https://www.youtube.com/watch?v=ahCwqrYpIuM"
             },
-
             {
                 "id": 9010,
                 "parent_id": 34,

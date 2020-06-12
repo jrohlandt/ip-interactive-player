@@ -1,11 +1,7 @@
 import React from 'react';
 
 import { STATES, ON_PLAYER_STATE_CHANGE, ON_TIME_UPDATE } from './Constants';
-// import { isValidState, isValidVendor, isValidAction } from './Helpers.js';
-import HTML5Player from './HTML5Player.js';
-import { VENDORS } from './Constants.js';
-import YoutubePlayer from './YoutubePlayer.js';
-import { getVendor } from './utils/vendor';
+import Player from './Player';
 
 class VideoPlayer extends React.Component {
   constructor(props) {
@@ -23,39 +19,39 @@ class VideoPlayer extends React.Component {
   }
 
   updateCurrentTime(currentTime) {
-    this.setState({currentTime});
+    this.setState({ currentTime });
   }
 
   updatePlaybackState(playbackState) {
-    this.setState({playbackState});
+    this.setState({ playbackState });
   }
 
   componentDidMount() {
-    if (typeof(this.props.sendMessageToParent) === 'function') {
+    if (typeof (this.props.sendMessageToParent) === 'function') {
       this.communicateWithParent = true;
     }
   }
   sendMessageToParent(obj) {
     if (this.communicateWithParent !== true) return;
-    this.props.sendMessageToParent({message: obj});
+    this.props.sendMessageToParent({ message: obj });
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
 
     if (this.communicateWithParent !== true) return;
-    
+
     if (prevState.playbackState !== this.state.playbackState) {
       this.sendMessageToParent({
-        name: ON_PLAYER_STATE_CHANGE, 
-        params: {playbackState: this.state.playbackState}
+        name: ON_PLAYER_STATE_CHANGE,
+        params: { playbackState: this.state.playbackState }
       });
     }
 
     if (prevState.currentTime !== this.state.currentTime) {
       // console.log('inded time update', this.state.currentTime);
       this.sendMessageToParent({
-        name: ON_TIME_UPDATE, 
-        params: { 'currentTime' : this.state.currentTime }
+        name: ON_TIME_UPDATE,
+        params: { 'currentTime': this.state.currentTime }
       });
     }
 
@@ -65,9 +61,7 @@ class VideoPlayer extends React.Component {
   }
 
   render() {
-    // console.log(this.props);
     const props = {
-      // vendor: this.props.vendor,
       url: this.props.url,
       forceReload: this.props.forceReload,
       resetForceReload: this.props.resetForceReload,
@@ -77,29 +71,15 @@ class VideoPlayer extends React.Component {
       // purposely exluding this.props.sendMessageToParent
     };
 
-    switch(getVendor(props.url)) {
-      case VENDORS.HTML5: 
-        // console.log('props: ', props);
-        return (
-          <HTML5Player 
-            {...props} 
-            updatePlaybackState={this.updatePlaybackState}
-            updateCurrentTime={this.updateCurrentTime}
-          />
-        );
-      case VENDORS.YOUTUBE:
-        return (
-          <YoutubePlayer 
-            {...props} 
-            updatePlaybackState={this.updatePlaybackState} 
-            updateCurrentTime={this.updateCurrentTime}
-          />
-        );
-      default:
-        return <div>Invalid vendor</div>;
-    }
+    return (
+      <Player
+        {...props}
+        updatePlaybackState={this.updatePlaybackState}
+        updateCurrentTime={this.updateCurrentTime}
+      />
+    );
   }
-    
+
 };
 
 export default VideoPlayer;
