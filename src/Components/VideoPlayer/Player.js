@@ -5,6 +5,7 @@ import { isValidState, isValidAction } from './Helpers.js';
 import { getVendor } from './utils/vendor';
 import PlayerActions from './PlayerActions';
 import PlayerWindow from './PlayerWindow.js';
+import HTML5API from './HTML5API';
 import YoutubeAPI from './YoutubeAPI';
 
 class Player extends React.Component {
@@ -13,7 +14,6 @@ class Player extends React.Component {
     super(props);
 
     this.player = false;
-    // this.YoutubeInitIntervalId = null;
     this.YoutubeTimerId = null;
 
     this.state = {
@@ -38,9 +38,14 @@ class Player extends React.Component {
     this.pause = this.pause.bind(this);
     this.mute = this.mute.bind(this);
     this.unMute = this.unMute.bind(this);
+    this.isMuted = this.isMuted.bind(this);
     this.seekTo = this.seekTo.bind(this);
     this.getCurrentTime = this.getCurrentTime.bind(this);
     this.getDuration = this.getDuration.bind(this);
+    this.changeSrc = this.changeSrc.bind(this);
+
+    this.initPlayer = this.initPlayer.bind(this);
+    this.initYoutube = this.initYoutube.bind(this);
   }
 
   getPlayer() {
@@ -48,23 +53,24 @@ class Player extends React.Component {
   }
 
   onPlayerReady() {
-
+    console.log('player ready', this.getPlayer())
     this.setState({ ready: true });
 
     this.player = this.getPlayer();
-    if (this.state.playbackState === STATES.UNSTARTED && this.props.autoplay) {
+    if (/*this.state.playbackState === STATES.UNSTARTED && */this.props.autoplay) {
       setTimeout(() => {
-        this.doAction(ACTIONS.PLAY);
-        this.doAction(ACTIONS.SEEK_TO, { currentTime: 0 }); // todo is this really needed????
+        this.doAction(ACTIONS.PLAY); // wait for React to setState({ready: true})
+        // this.doAction(ACTIONS.SEEK_TO, { currentTime: 0 }); // todo is this really needed????
       }
         , 100); // wait for React to setState({ready: true})
     }
   }
 
   onPlayerStateChange(playbackState) {
+    console.log('state change: ', playbackState)
     if (isValidState(playbackState)) {
       this.props.updatePlaybackState(playbackState);
-      this.setState({ playbackState });
+      this.setState({ playbackState, muted: this.isMuted() });
     }
     else
       console.error(`Invalid playback state: ${playbackState}.`);
@@ -76,6 +82,19 @@ class Player extends React.Component {
     duration = isNaN(duration) ? 0 : duration;
     this.props.updateCurrentTime(currentTime);
     this.setState({ currentTime, duration });
+  }
+
+  initPlayer(vendor) {
+    switch (vendor) {
+      case VENDORS.HTML5:
+        this.initHTML5();
+        break;
+      case VENDORS.YOUTUBE:
+        this.initYoutube();
+        break;
+      default:
+        break;
+    }
   }
 
   play() {
@@ -94,6 +113,10 @@ class Player extends React.Component {
     return PlayerActions[this.state.vendor].unMute(this.player);
   }
 
+  isMuted() {
+    return PlayerActions[this.state.vendor].isMuted(this.player);
+  }
+
   seekTo(seconds) {
     return PlayerActions[this.state.vendor].seekTo(this.player, seconds);
   }
@@ -106,13 +129,24 @@ class Player extends React.Component {
     return PlayerActions[this.state.vendor].getDuration(this.player);
   }
 
+  changeSrc(url) {
+    return PlayerActions[this.state.vendor].changeSrc(this.player, url);
+  }
+
+  destroy() {
+    if (this.YoutubeTimerId !== null) {
+      clearInterval(this.YoutubeTimerId); // stop YT timer
+    }
+    return PlayerActions[this.state.vendor].destroy(this.player);
+  }
+
   doAction(action, params = {}) {
     action = action.toUpperCase();
     if (!isValidAction(action)) {
       throw new Error(`Invalid action ${action}.`);
     }
 
-    if (!this.state.ready) {
+    if (!this.state.ready || this.player === false) {
       console.log(`Cannot perform action (${action}). Player is not ready yet`);
       return;
     }
@@ -158,34 +192,64 @@ class Player extends React.Component {
   componentDidMount() {
     const vendor = getVendor(this.props.url);
 
-    if (vendor === VENDORS.YOUTUBE) {
-      setTimeout(() => {
-        YoutubeAPI(this.props.url, STATES, this.onPlayerReady, this.onPlayerStateChange);
-        this.YoutubeTimerId = setInterval(() => {
-          if (this.state.playbackState === STATES.ENDED) {
-            clearInterval(this.YoutubeTimerId);
-          }
-
-          // Make sure player is ready and that player object is set.
-          if (this.state.ready === false || this.player === false) {
-            return;
-          }
-
-          this.onTimeUpdate(); // simulate onTimeUpdate event as YT API does not have one.
-        });
-      });
-    }
+    this.initPlayer(vendor);
 
     this.setState({ vendor: vendor });
     console.log('vendor: ', this.props.url, getVendor(this.props.url));
   }
 
+  initHTML5() {
+    setTimeout(() => {
+      HTML5API(this.props.url, this.onPlayerReady, this.onTimeUpdate, this.onPlayerStateChange);
+    }, 100);
+    this.player = false;
+    this.setState({ ready: false });
+  }
+
+  initYoutube() {
+
+    if (this.YoutubeTimerId !== null) {
+      clearInterval(this.YoutubeTimerId); // so player will be re-initialized 
+    }
+
+    setTimeout(() => {
+      YoutubeAPI(this.props.url, STATES, this.onPlayerReady, this.onPlayerStateChange);
+      // start YT Timer
+      this.YoutubeTimerId = setInterval(() => {
+        if (this.state.playbackState === STATES.ENDED) {
+          clearInterval(this.YoutubeTimerId);
+          return;
+        }
+
+        // Make sure player is ready and that player object is set.
+        if (this.state.ready === false || this.player === false) {
+          return;
+        }
+
+        this.onTimeUpdate(); // simulate onTimeUpdate event as YT API does not have one.
+      }, 100);
+    }, 100);
+    this.player = false;
+    this.setState({ ready: false });
+  };
+
   componentDidUpdate(prevProps, prevState, snapshot) {
     if (prevProps.url !== this.props.url || this.props.forceReload === true) {
       this.props.resetForceReload();
-      this.doAction(ACTIONS.PAUSE);
-      this.doAction(ACTIONS.PLAY);
-      this.setState({ duration: 0, currentTime: 0 });
+
+      const vendor = getVendor(this.props.url);
+      if (prevState.vendor !== vendor) {
+        // destroy player and reset state
+        this.destroy();
+        this.initPlayer(vendor);
+        this.setState({ vendor, duration: 0, currentTime: 0 });
+      }
+      else {
+        this.doAction(ACTIONS.PAUSE);
+        this.changeSrc(this.props.url);
+        this.doAction(ACTIONS.SEEK_TO, { currentTime: 0 });
+        this.doAction(ACTIONS.PLAY);
+      }
     }
 
     // If new props is pause then pause (if not already paused)

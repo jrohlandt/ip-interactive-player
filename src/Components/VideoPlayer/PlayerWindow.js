@@ -25,21 +25,7 @@ class PlayerWindow extends React.Component {
 
           {/* <!-- Player element --> */}
           <div id="player" data-src="">
-            {
-              props.vendor === VENDORS.HTML5
-                ? <video
-                  // key={props.url}
-                  src={props.url}
-                  onLoadedMetadata={props.onPlayerReady}
-                  onPlay={() => props.onPlayerStateChange(STATES.PLAYING)}
-                  onPause={() => props.onPlayerStateChange(STATES.PAUSED)}
-                  onEnded={() => props.onPlayerStateChange(STATES.ENDED)}
-                  onWaiting={() => props.onPlayerStateChange(STATES.BUFFERING)}
-                  onPlaying={() => props.onPlayerStateChange(STATES.PLAYING)}
-                  onTimeUpdate={props.onTimeUpdate}
-                />
-                : ''
-            }
+
           </div>
 
           {/* Overlays */}
