@@ -5,6 +5,7 @@ import { isValidState, isValidAction } from './Helpers.js';
 import { getVendor } from './utils/vendor';
 import PlayerActions from './PlayerActions';
 import PlayerWindow from './PlayerWindow.js';
+import YoutubeAPI from './YoutubeAPI';
 
 class Player extends React.Component {
 
@@ -12,6 +13,8 @@ class Player extends React.Component {
     super(props);
 
     this.player = false;
+    // this.YoutubeInitIntervalId = null;
+    this.YoutubeTimerId = null;
 
     this.state = {
       ready: false,
@@ -50,7 +53,11 @@ class Player extends React.Component {
 
     this.player = this.getPlayer();
     if (this.state.playbackState === STATES.UNSTARTED && this.props.autoplay) {
-      setTimeout(() => this.doAction(ACTIONS.PLAY), 100); // wait for React to setState({ready: true})
+      setTimeout(() => {
+        this.doAction(ACTIONS.PLAY);
+        this.doAction(ACTIONS.SEEK_TO, { currentTime: 0 }); // todo is this really needed????
+      }
+        , 100); // wait for React to setState({ready: true})
     }
   }
 
@@ -149,7 +156,27 @@ class Player extends React.Component {
   }
 
   componentDidMount() {
-    this.setState({ vendor: getVendor(this.props.url) });
+    const vendor = getVendor(this.props.url);
+
+    if (vendor === VENDORS.YOUTUBE) {
+      setTimeout(() => {
+        YoutubeAPI(this.props.url, STATES, this.onPlayerReady, this.onPlayerStateChange);
+        this.YoutubeTimerId = setInterval(() => {
+          if (this.state.playbackState === STATES.ENDED) {
+            clearInterval(this.YoutubeTimerId);
+          }
+
+          // Make sure player is ready and that player object is set.
+          if (this.state.ready === false || this.player === false) {
+            return;
+          }
+
+          this.onTimeUpdate(); // simulate onTimeUpdate event as YT API does not have one.
+        });
+      });
+    }
+
+    this.setState({ vendor: vendor });
     console.log('vendor: ', this.props.url, getVendor(this.props.url));
   }
 

@@ -22,8 +22,6 @@ class PlayerWindow extends React.Component {
       <div className="wrapper">
 
         <div className="player-container">
-          {props.muted ? mutedOverlay : ''}
-          {props.playbackState === STATES.BUFFERING ? bufferingOverlay : ''}
 
           {/* <!-- Player element --> */}
           <div id="player" data-src="">
@@ -43,6 +41,11 @@ class PlayerWindow extends React.Component {
                 : ''
             }
           </div>
+
+          {/* Overlays */}
+          {/* Place overlays after Youtube element */}
+          {props.muted ? mutedOverlay : ''}
+          {props.playbackState === STATES.BUFFERING ? bufferingOverlay : ''}
 
           {/* <!-- Player Controls --> */}
           <div className="player-control-bar" >

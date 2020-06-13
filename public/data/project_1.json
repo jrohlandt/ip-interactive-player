@@ -10,7 +10,7 @@
                 "id": 10,
                 "parent_id": 0,
                 "title": "parent",
-                "url": "https://staging.magiwebsa.com/donotdelete/video/PayKickstart-RoRhYTawSls.mp4",
+                "url": "https://www.youtube.com/watch?v=ahCwqrYpIuM",
                 "interactions": {
                     "fork": {
                         "enabled": true,
@@ -35,7 +35,7 @@
                 "id": 1889,
                 "parent_id": 10,
                 "title": "vid 2.2",
-                "url": "https://www.youtube.com/watch?v=783ccP__No8",
+                "url": "https://staging.magiwebsa.com/donotdelete/sample_videos/30-minutes.mp4",
                 "interactions": {
                     "fork": {
                         "enabled": true,
@@ -59,7 +59,7 @@
                 "id": 1888,
                 "parent_id": 10,
                 "title": "vid 2.1",
-                "url": "https://staging.magiwebsa.com/donotdelete/video/PayKickstart-RoRhYTawSls.mp4"
+                "url": "https://staging.magiwebsa.com/donotdelete/sample_videos/PayKickstart-RoRhYTawSls.mp4"
             },
             {
                 "id": 34,

@@ -1,7 +1,7 @@
 import { getYoutubeVideoId } from './utils/vendor';
 
 let loadYT = false;
-const YoutubeAPI = function (videoUrl, setPlayer, playbackStates, onPlayerReady, onPlayerStateChange) {
+const YoutubeAPI = function (videoUrl, playbackStates, onPlayerReady, onPlayerStateChange) {
   if (!loadYT) {
     loadYT = new Promise((resolve, reject) => {
       const tag = document.createElement('script');
@@ -15,7 +15,7 @@ const YoutubeAPI = function (videoUrl, setPlayer, playbackStates, onPlayerReady,
 
   loadYT.then(YT => {
 
-    var player = new YT.Player('player', {
+    window.YOUTUBE_PLAYER_32f3S9x8E32A39h8 = new YT.Player('player', {
       height: '',
       width: '320',
       videoId: getYoutubeVideoId(videoUrl),
@@ -50,7 +50,7 @@ const YoutubeAPI = function (videoUrl, setPlayer, playbackStates, onPlayerReady,
               // done = true;
               break;
           }
-
+          console.log('ytstate', state)
           onPlayerStateChange(state);
         },
         'onError': function (error) { console.log(error); }
@@ -66,7 +66,6 @@ const YoutubeAPI = function (videoUrl, setPlayer, playbackStates, onPlayerReady,
       }
     });
 
-    setPlayer(player);
   })
     .catch(e => console.log(e));
 
