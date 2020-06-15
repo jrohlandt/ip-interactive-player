@@ -5,8 +5,8 @@ import { isValidState, isValidAction } from './Helpers.js';
 import { getVendor } from './utils/vendor';
 import PlayerActions from './PlayerActions';
 import PlayerWindow from './PlayerWindow.js';
-import HTML5API from './HTML5API';
-import YoutubeAPI from './YoutubeAPI';
+import HTML5API from './VideoPlayers/HTML5API';
+import YoutubeAPI from './VideoPlayers/YoutubeAPI';
 
 class Player extends React.Component {
 

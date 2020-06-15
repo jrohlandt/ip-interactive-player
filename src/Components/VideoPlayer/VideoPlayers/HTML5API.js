@@ -1,4 +1,4 @@
-import { STATES } from './Constants';
+import { STATES } from '../Constants';
 
 
 const HTML5API = function (
