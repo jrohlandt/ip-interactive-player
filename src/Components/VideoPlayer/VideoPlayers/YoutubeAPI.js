@@ -1,7 +1,8 @@
 import { getYoutubeVideoId } from '../utils/vendor';
+import { STATES } from '../Constants';
 
 let loadYT = false;
-const YoutubeAPI = function (videoUrl, playbackStates, onPlayerReady, onPlayerStateChange) {
+const YoutubeAPI = function (videoUrl, onPlayerReady, onPlayerError, onPlayerStateChange) {
   if (!loadYT) {
     loadYT = new Promise((resolve, reject) => {
       const tag = document.createElement('script');
@@ -26,34 +27,32 @@ const YoutubeAPI = function (videoUrl, playbackStates, onPlayerReady, onPlayerSt
         'onStateChange': function (event) {
           let state = YT.PlayerState.UNSTARTED;
 
-          const ps = playbackStates;
           switch (event.data) {
             case (YT.PlayerState.UNSTARTED):
-              state = ps.UNSTARTED;
+              state = STATES.UNSTARTED;
               break;
             case (YT.PlayerState.ENDED):
-              state = ps.ENDED;
+              state = STATES.ENDED;
               break;
             case (YT.PlayerState.PLAYING):
-              state = ps.PLAYING;
+              state = STATES.PLAYING;
               break;
             case (YT.PlayerState.PAUSED):
-              state = ps.PAUSED;
+              state = STATES.PAUSED;
               break;
             case (YT.PlayerState.BUFFERING):
-              state = ps.BUFFERING;
+              state = STATES.BUFFERING;
               break;
             case (YT.PlayerState.VIDEO_CUED):
-              state = ps.CUED;
+              state = STATES.CUED;
               break;
             default:
               // done = true;
               break;
           }
-          console.log('ytstate', state)
           onPlayerStateChange(state);
         },
-        'onError': function (error) { console.log(error); }
+        'onError': onPlayerError,
       },
       playerVars: {
         controls: 0,

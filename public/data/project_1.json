@@ -10,7 +10,7 @@
                 "id": 10,
                 "parent_id": 0,
                 "title": "parent",
-                "url": "https://staging.magiwebsa.com/donotdelete/sample_videos/30-minutes.mp4",
+                "url": "http:/localhost:9090/30-minutes.mp4",
                 "interactions": {
                     "fork": {
                         "enabled": true,

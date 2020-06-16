@@ -27,6 +27,8 @@ class Player extends React.Component {
     };
 
     this.onPlayerReady = this.onPlayerReady.bind(this);
+    this.onPlayerError = this.onPlayerError.bind(this);
+
     this.onPlayerStateChange = this.onPlayerStateChange.bind(this);
     this.onTimeUpdate = this.onTimeUpdate.bind(this);
 
@@ -50,6 +52,11 @@ class Player extends React.Component {
 
   getPlayer() {
     return PlayerActions[this.state.vendor].getPlayer();
+  }
+
+  onPlayerError(error) {
+    // note in html5 player this will e will be event and in YT it will be and error.
+    console.error(error); // todo handle UI
   }
 
   onPlayerReady() {
@@ -97,42 +104,15 @@ class Player extends React.Component {
     }
   }
 
-  play() {
-    return PlayerActions[this.state.vendor].play(this.player);
-  }
-
-  pause() {
-    return PlayerActions[this.state.vendor].pause(this.player);
-  }
-
-  mute() {
-    return PlayerActions[this.state.vendor].mute(this.player);
-  }
-
-  unMute() {
-    return PlayerActions[this.state.vendor].unMute(this.player);
-  }
-
-  isMuted() {
-    return PlayerActions[this.state.vendor].isMuted(this.player);
-  }
-
-  seekTo(seconds) {
-    return PlayerActions[this.state.vendor].seekTo(this.player, seconds);
-  }
-
-  getCurrentTime() {
-    return PlayerActions[this.state.vendor].getCurrentTime(this.player);
-  }
-
-  getDuration() {
-    return PlayerActions[this.state.vendor].getDuration(this.player);
-  }
-
-  changeSrc(url) {
-    return PlayerActions[this.state.vendor].changeSrc(this.player, url);
-  }
-
+  play = () => PlayerActions[this.state.vendor].play(this.player);
+  pause = () => PlayerActions[this.state.vendor].pause(this.player);
+  mute = () => PlayerActions[this.state.vendor].mute(this.player);
+  unMute = () => PlayerActions[this.state.vendor].unMute(this.player);
+  isMuted = () => PlayerActions[this.state.vendor].isMuted(this.player);
+  seekTo = seconds => PlayerActions[this.state.vendor].seekTo(this.player, seconds);
+  getCurrentTime = () => PlayerActions[this.state.vendor].getCurrentTime(this.player);
+  getDuration = () => PlayerActions[this.state.vendor].getDuration(this.player);
+  changeSrc = url => PlayerActions[this.state.vendor].changeSrc(this.player, url);
   destroy() {
     if (this.YoutubeTimerId !== null) {
       clearInterval(this.YoutubeTimerId); // stop YT timer
@@ -200,7 +180,7 @@ class Player extends React.Component {
 
   initHTML5() {
     setTimeout(() => {
-      HTML5API(this.props.url, this.onPlayerReady, this.onTimeUpdate, this.onPlayerStateChange);
+      HTML5API(this.props.url, this.onPlayerReady, this.onPlayerError, this.onTimeUpdate, this.onPlayerStateChange);
     }, 100);
     this.player = false;
     this.setState({ ready: false });
@@ -213,7 +193,7 @@ class Player extends React.Component {
     }
 
     setTimeout(() => {
-      YoutubeAPI(this.props.url, STATES, this.onPlayerReady, this.onPlayerStateChange);
+      YoutubeAPI(this.props.url, this.onPlayerReady, this.onPlayerError, this.onPlayerStateChange);
       // start YT Timer
       this.YoutubeTimerId = setInterval(() => {
         if (this.state.playbackState === STATES.ENDED) {

@@ -3,12 +3,15 @@ import { STATES } from '../Constants';
 
 const HTML5API = function (
   videoUrl,
-  onPlayerReady, onTimeUpdate,
+  onPlayerReady,
+  onPlayerError,
+  onTimeUpdate,
   onPlayerStateChange
 ) {
   let video = document.createElement('video');
   document.getElementById('player').appendChild(video);
   video.onloadedmetadata = onPlayerReady;
+  video.onerror = onPlayerError;
   video.src = videoUrl;
   video.onplay = () => onPlayerStateChange(STATES.PLAYING);
   video.onplaying = () => onPlayerStateChange(STATES.PLAYING);
