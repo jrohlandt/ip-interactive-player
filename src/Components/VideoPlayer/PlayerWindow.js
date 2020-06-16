@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import styles from './PlayerWindow.module.css';
 import './styles.css';
 
-import { STATES, VENDORS, ACTIONS } from './Constants';
+import { STATES, ACTIONS } from './Constants';
 
 class PlayerWindow extends React.Component {
 
@@ -39,8 +39,8 @@ class PlayerWindow extends React.Component {
             {/* <!-- todo use webpack to load icons --> */}
             <div
               id="play-button"
-              className={"play-button " + (props.playbackState === STATES.PLAYING ? 'playing ' : 'paused ')}
-              onClick={() => props.doAction(props.playbackState === STATES.PLAYING ? ACTIONS.PAUSE : ACTIONS.PLAY)}
+              className={"play-button " + (props.currentStateIs(STATES.playing) ? 'playing ' : 'paused ')}
+              onClick={() => props.doAction(props.currentStateIs(STATES.playing) ? ACTIONS.PAUSE : ACTIONS.PLAY)}
             >
               <img src="/icons/play-icon.svg" className="play" alt="" />
               <img src="/icons/paused-icon.svg" className="pause" alt="" />
@@ -75,10 +75,9 @@ class PlayerWindow extends React.Component {
 
 PlayerWindow.propTypes = {
   vendor: PropTypes.string,
-  url: PropTypes.string,
   duration: PropTypes.number.isRequired,
   currentTime: PropTypes.number.isRequired,
-  playbackState: PropTypes.number.isRequired,
+  playbackState: PropTypes.string.isRequired,
   muted: PropTypes.bool.isRequired,
 
   onPlayerReady: PropTypes.func.isRequired,

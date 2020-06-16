@@ -1,7 +1,8 @@
 import { getYoutubeVideoId } from '../utils/vendor';
+import { STATES } from '../Constants';
 
 let loadYT = false;
-const YoutubeAPI = function (videoUrl, playbackStates, onPlayerReady, onPlayerStateChange) {
+const YoutubeAPI = function (videoUrl, onPlayerReady, onPlayerError, onPlayerStateChange) {
   if (!loadYT) {
     loadYT = new Promise((resolve, reject) => {
       const tag = document.createElement('script');
@@ -15,6 +16,13 @@ const YoutubeAPI = function (videoUrl, playbackStates, onPlayerReady, onPlayerSt
 
   loadYT.then(YT => {
 
+    // 'UNSTARTED': -1,
+    // 'ENDED': 0,
+    // 'PLAYING': 1,
+    // 'PAUSED': 2,
+    // 'BUFFERING': 3,
+    // 'CUED': 5,
+
     window.YOUTUBE_PLAYER_32f3S9x8E32A39h8 = new YT.Player('player', {
       height: '',
       width: '320',
@@ -26,25 +34,24 @@ const YoutubeAPI = function (videoUrl, playbackStates, onPlayerReady, onPlayerSt
         'onStateChange': function (event) {
           let state = YT.PlayerState.UNSTARTED;
 
-          const ps = playbackStates;
           switch (event.data) {
             case (YT.PlayerState.UNSTARTED):
-              state = ps.UNSTARTED;
+              state = STATES.unstarted;
               break;
             case (YT.PlayerState.ENDED):
-              state = ps.ENDED;
+              state = STATES.ended;
               break;
             case (YT.PlayerState.PLAYING):
-              state = ps.PLAYING;
+              state = STATES.playing;
               break;
             case (YT.PlayerState.PAUSED):
-              state = ps.PAUSED;
+              state = STATES.paused;
               break;
             case (YT.PlayerState.BUFFERING):
-              state = ps.BUFFERING;
+              state = STATES.buffering;
               break;
             case (YT.PlayerState.VIDEO_CUED):
-              state = ps.CUED;
+              state = STATES.cued;
               break;
             default:
               // done = true;
@@ -53,7 +60,7 @@ const YoutubeAPI = function (videoUrl, playbackStates, onPlayerReady, onPlayerSt
           console.log('ytstate', state)
           onPlayerStateChange(state);
         },
-        'onError': function (error) { console.log(error); }
+        'onError': onPlayerError,
       },
       playerVars: {
         controls: 0,

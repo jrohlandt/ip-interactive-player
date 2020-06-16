@@ -1,10 +1,14 @@
 export const STATES = {
-    'UNSTARTED': -1,
-    'ENDED': 0,
-    'PLAYING': 1,
-    'PAUSED': 2,
-    'BUFFERING': 3,
-    'CUED': 5,
+    initializing: 'initializing',
+    initialized: 'initialized',
+    failure: 'failure',
+    ready: 'ready',
+    unstarted: 'unstarted',
+    ended: 'ended',
+    playing: 'playing',
+    paused: 'paused',
+    buffering: 'buffering',
+    cued: 'cued',
 };
 
 export const VENDORS = {
@@ -16,12 +20,12 @@ export const VENDORS = {
 };
 
 export const ACTIONS = {
-    'PLAY': 'PLAY',
-    'PAUSE': 'PAUSE',
-    'STOP': 'STOP',
-    'MUTE': 'MUTE',
-    'UNMUTE': 'UNMUTE',
-    'SEEK_TO': 'SEEK_TO',
+    PLAY: 'PLAY',
+    PAUSE: 'PAUSE',
+    STOP: 'STOP',
+    MUTE: 'MUTE',
+    UNMUTE: 'UNMUTE',
+    SEEK_TO: 'SEEK_TO',
 };
 
 export const ON_PLAYER_STATE_CHANGE = 'ON_PLAYER_STATE_CHANGE';

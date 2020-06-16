@@ -7,7 +7,8 @@
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-scripts": "3.0.1",
-    "s": "^0.1.1"
+    "s": "^0.1.1",
+    "xstate": "^4.10.0"
   },
   "scripts": {
     "start": "HTTPS=true react-scripts start",

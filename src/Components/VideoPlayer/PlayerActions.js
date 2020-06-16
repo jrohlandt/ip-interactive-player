@@ -21,7 +21,14 @@ const PlayerActions = {
   },
   HTML5: {
     getPlayer: () => document.getElementById('player').getElementsByTagName('video')[0],
-    play: (p) => p.play(),
+    play: (p) => {
+      p.play().catch(err => {
+        console.warn(err);
+        this.mute();
+        this.play().catch(err => console.error(err));
+        this.setState({ muted: true });
+      });
+    },
     pause: p => p.pause(),
     mute: p => p.muted = true,
     unMute: p => p.muted = false,
