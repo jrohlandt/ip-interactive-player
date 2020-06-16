@@ -69,7 +69,6 @@ const PlayerMachine = Machine({
         },
         [STATES.playing]: {
           on: {
-
             ON_TIME_UPDATE: {
               target: STATES.playing,
               actions: ['updateTime']
@@ -86,7 +85,6 @@ const PlayerMachine = Machine({
               target: '',
               actions: ['unMute'],
             },
-
           }
         },
         [STATES.paused]: {
