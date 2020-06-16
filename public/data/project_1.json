@@ -1,5 +1,6 @@
 {
     "project": {
+        "comment": "get more mp4 urls at https://gist.github.com/jsturgis/3b19447b304616f18657",
         "id": 1,
         "title": "Example Project 1",
         "settings": {
@@ -10,12 +11,12 @@
                 "id": 10,
                 "parent_id": 0,
                 "title": "parent",
-                "url": "http://localhost:9090/30-minutes.mp4",
+                "url": "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
                 "interactions": {
                     "fork": {
                         "enabled": true,
                         "type": "custom_time",
-                        "start_time": 30
+                        "start_time": 120
                     }
                 }
             },
@@ -23,7 +24,7 @@
                 "id": 3903209,
                 "parent_id": 33,
                 "title": "great grand child 2",
-                "url": "https://staging.magiwebsa.com/donotdelete/sample_videos/30-minutes.mp4"
+                "url": "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4"
             },
             {
                 "id": 677,
@@ -59,7 +60,7 @@
                 "id": 1888,
                 "parent_id": 10,
                 "title": "vid 2.1",
-                "url": "https://staging.magiwebsa.com/donotdelete/sample_videos/PayKickstart-RoRhYTawSls.mp4"
+                "url": "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4"
             },
             {
                 "id": 34,

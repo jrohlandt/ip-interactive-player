@@ -16,7 +16,10 @@ class Player extends React.Component {
 
     this.player = false;
     this.YoutubeTimerId = null;
-    this.service = interpret(PlayerMachine).onTransition(current => { console.log('xstate:', current.value, current.context); this.setState({ current }); });
+    this.service = interpret(PlayerMachine).onTransition(current => {
+      // console.log('xstate:', current.value, current.context); 
+      this.setState({ current });
+    });
 
     this.state = {
       // ready: false,
@@ -197,15 +200,14 @@ class Player extends React.Component {
         this.service.send(ACTIONS.PAUSE);
         break;
       case (ACTIONS.MUTE):
-        this.mute();
-        this.setState({ muted: true });
+        this.service.send(ACTIONS.MUTE);
         break;
       case (ACTIONS.UNMUTE):
-        this.unMute();
-        this.setState({ muted: false });
+        this.service.send(ACTIONS.UNMUTE);
         break;
       case (ACTIONS.SEEK_TO):
-        this.seekTo(params.currentTime);
+        // this.seekTo(params.currentTime);
+        this.service.send(ACTIONS.SEEK_TO, { seconds: params.currentTime });
         break;
       default:
         throw new Error(`Invalid action: ${action}.`);
@@ -214,7 +216,7 @@ class Player extends React.Component {
 
   handleProgressClick(e) {
     const pos = (e.pageX - e.target.offsetLeft) / e.target.offsetWidth;
-    this.doAction(ACTIONS.SEEK_TO, { currentTime: pos * this.state.duration });
+    this.doAction(ACTIONS.SEEK_TO, { currentTime: pos * this.state.current.context.duration });
   }
 
   componentDidMount() {
@@ -222,9 +224,6 @@ class Player extends React.Component {
     const vendor = getVendor(this.props.url);
 
     this.initPlayer(vendor);
-
-    // this.setState({ vendor: vendor });
-    // console.log('vendor: ', this.props.url, getVendor(this.props.url));
   }
 
   componentWillUnmount() {

@@ -24,15 +24,14 @@ const PlayerActions = {
     play: (p) => {
       p.play().catch(err => {
         console.warn(err);
-        this.mute();
-        this.play().catch(err => console.error(err));
-        this.setState({ muted: true });
+        p.muted = true;
+        p.play().catch(err => console.error(err));
       });
     },
     pause: p => p.pause(),
     mute: p => p.muted = true,
     unMute: p => p.muted = false,
-    isMuted: p => p.muted,
+    isMuted: p => { return p.muted; },
     seekTo: (p, seconds) => p.currentTime = seconds,
     getCurrentTime: p => p.currentTime,
     getDuration: p => p.duration,

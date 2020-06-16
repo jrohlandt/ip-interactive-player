@@ -1,15 +1,25 @@
-import { Machine, assign, send } from 'xstate';
+import { Machine, assign } from 'xstate';
 import { STATES } from './Constants';
 import PlayerActions from './PlayerActions';
 
-const muteEvents = {
+const Events = {
   MUTE: {
     target: '',
-    actions: ['mute'],
+    actions: [
+      'mute',
+      assign({ muted: true }),
+    ],
   },
   UNMUTE: {
     target: '',
-    actions: ['unMute'],
+    actions: [
+      'unMute',
+      assign({ muted: false }),
+    ],
+  },
+  SEEK_TO: {
+    target: '',
+    actions: ['seekTo']
   }
 };
 
@@ -71,20 +81,15 @@ const PlayerMachine = Machine({
           on: {
             ON_TIME_UPDATE: {
               target: STATES.playing,
-              actions: ['updateTime']
+              actions: ['updateTime', 'syncMute']
             },
             PAUSE: {
               target: STATES.paused,
               actions: ['pause'],
             },
-            MUTE: {
-              target: '',
-              actions: ['mute'],
-            },
-            UNMUTE: {
-              target: '',
-              actions: ['unMute'],
-            },
+            MUTE: Events.MUTE,
+            UNMUTE: Events.UNMUTE,
+            SEEK_TO: Events.SEEK_TO,
           }
         },
         [STATES.paused]: {
@@ -92,7 +97,10 @@ const PlayerMachine = Machine({
             PLAY: {
               target: STATES.playing,
               actions: ['play']
-            }
+            },
+            MUTE: Events.MUTE,
+            UNMUTE: Events.UNMUTE,
+            SEEK_TO: Events.SEEK_TO, // todo progress bar does not update when seeking in paused state.
           }
         },
         [STATES.ended]: {
@@ -108,36 +116,25 @@ const PlayerMachine = Machine({
 
 }, {
   actions: {
-    play: (context, event) => {
-      console.log('playiddd')
-      PlayerActions[context.vendor].play(context.player);
+    play: (cx, e) => {
+      // make sure player mute state is in sync with context before playing.
+      PlayerActions[cx.vendor][cx.muted ? 'mute' : 'unMute'](cx.player);
+      PlayerActions[cx.vendor].play(cx.player);
     },
-    pause: (context, event) => {
-      PlayerActions[context.vendor].pause(context.player);
-    },
-    mute: (context, event) => {
-      PlayerActions[context.vendor].mute(context.player);
-      assign({ muted: (context, event) => PlayerActions[context.vendor].isMuted(context.player) });
-    },
-    unMute: (context, event) => {
-      PlayerActions[context.vendor].unMute(context.player);
-      assign({ muted: (context, event) => PlayerActions[context.vendor].isMuted(context.player) });
-    },
-    isMuted: (context, event) => {
-      PlayerActions[context.vendor].isMuted(context.player);
-    },
-    seekTo: (context, event) => {
-      PlayerActions[context.vendor].seekTo(context.player);
-    },
+    pause: (cx, e) => PlayerActions[cx.vendor].pause(cx.player),
+    mute: (cx, e) => PlayerActions[cx.vendor].mute(cx.player),
+    unMute: (cx, e) => PlayerActions[cx.vendor].unMute(cx.player),
+    // syncMute makes sure that cx mute is in sync with player mute state.
+    syncMute: assign({ muted: (cx, e) => PlayerActions[cx.vendor].isMuted(cx.player) }
+    ),
+    seekTo: (cx, e) => PlayerActions[cx.vendor].seekTo(cx.player, e.seconds),
     updateTime: assign({
-      currentTime: context => PlayerActions[context.vendor].getCurrentTime(context.player),
-      duration: context => PlayerActions[context.vendor].getDuration(context.player),
+      currentTime: cx => PlayerActions[cx.vendor].getCurrentTime(cx.player),
+      duration: cx => PlayerActions[cx.vendor].getDuration(cx.player),
     }),
-    changeSrc: (context, event) => {
-      PlayerActions[context.vendor].changeSrc(context.player);
-    },
-    destroy: (context, event) => {
-      PlayerActions[context.vendor].destroy(context.player);
+    changeSrc: (cx, e) => PlayerActions[cx.vendor].changeSrc(cx.player),
+    destroy: (cx, e) => {
+      PlayerActions[cx.vendor].destroy(cx.player);
     },
   }
 });
