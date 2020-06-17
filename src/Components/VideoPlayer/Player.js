@@ -42,15 +42,7 @@ class Player extends React.Component {
     this.doAction = this.doAction.bind(this);
 
     this.getPlayer = this.getPlayer.bind(this);
-    this.play = this.play.bind(this);
-    this.pause = this.pause.bind(this);
-    this.mute = this.mute.bind(this);
-    this.unMute = this.unMute.bind(this);
-    this.isMuted = this.isMuted.bind(this);
-    this.seekTo = this.seekTo.bind(this);
-    this.getCurrentTime = this.getCurrentTime.bind(this);
-    this.getDuration = this.getDuration.bind(this);
-    this.changeSrc = this.changeSrc.bind(this);
+
 
     this.initPlayer = this.initPlayer.bind(this);
     this.initYoutube = this.initYoutube.bind(this);
@@ -143,41 +135,7 @@ class Player extends React.Component {
     }, 100);
   };
 
-  play() {
-    return PlayerActions[this.state.vendor].play(this.player);
-  }
 
-  pause() {
-    return PlayerActions[this.state.vendor].pause(this.player);
-  }
-
-  mute() {
-    return PlayerActions[this.state.vendor].mute(this.player);
-  }
-
-  unMute() {
-    return PlayerActions[this.state.vendor].unMute(this.player);
-  }
-
-  isMuted() {
-    return PlayerActions[this.state.vendor].isMuted(this.player);
-  }
-
-  seekTo(seconds) {
-    return PlayerActions[this.state.vendor].seekTo(this.player, seconds);
-  }
-
-  getCurrentTime() {
-    return PlayerActions[this.state.current.context.vendor].getCurrentTime(this.state.current.context.player);
-  }
-
-  getDuration() {
-    return PlayerActions[this.state.vendor].getDuration(this.player);
-  }
-
-  changeSrc(url) {
-    return PlayerActions[this.state.vendor].changeSrc(this.player, url);
-  }
 
   destroy() {
     if (this.YoutubeTimerId !== null) {
@@ -209,6 +167,9 @@ class Player extends React.Component {
         // this.seekTo(params.currentTime);
         this.service.send(ACTIONS.SEEK_TO, { seconds: params.currentTime });
         break;
+      case (ACTIONS.CHANGE_SOURCE):
+        this.service.send(ACTIONS.CHANGE_SOURCE, { src: params.src });
+        break;
       default:
         throw new Error(`Invalid action: ${action}.`);
     }
@@ -235,24 +196,21 @@ class Player extends React.Component {
       this.props.resetForceReload();
 
       const vendor = getVendor(this.props.url);
-      if (prevState.vendor !== vendor) {
+      console.log(this.state.current.context.vendor, vendor);
+      if (this.state.current.context.vendor !== vendor) {
         // destroy player and reset state
         this.destroy();
         this.initPlayer(vendor);
         this.setState({ vendor, duration: 0, currentTime: 0 });
       }
       else {
-        this.doAction(ACTIONS.PAUSE);
-        this.changeSrc(this.props.url);
-        this.doAction(ACTIONS.SEEK_TO, { currentTime: 0 });
-        this.doAction(ACTIONS.PLAY);
+        this.doAction(ACTIONS.CHANGE_SOURCE, { src: this.props.url });
       }
     }
 
     // If new props is pause then pause (if not already paused)
     if (prevProps.pause !== this.props.pause && this.props.pause === true) {
-      // this.doAction(ACTIONS.PAUSE);
-      this.service.send('PAUSE');
+      this.doAction(ACTIONS.PAUSE);
     };
 
     if (prevProps.message === this.props.message) return;
@@ -261,8 +219,6 @@ class Player extends React.Component {
 
   render() {
     const { current } = this.state;
-    // const { send } = this.service;
-    // console.log('curr', current.context.currentTime);
     return (
       <>
         {current.context.vendor ?

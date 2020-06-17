@@ -101,6 +101,10 @@ const PlayerMachine = Machine({
             MUTE: Events.MUTE,
             UNMUTE: Events.UNMUTE,
             SEEK_TO: Events.SEEK_TO, // todo progress bar does not update when seeking in paused state.
+            CHANGE_SOURCE: {
+              target: STATES.playing,
+              actions: ['changeSrc', 'play']
+            }
           }
         },
         [STATES.ended]: {
@@ -132,7 +136,7 @@ const PlayerMachine = Machine({
       currentTime: cx => PlayerActions[cx.vendor].getCurrentTime(cx.player),
       duration: cx => PlayerActions[cx.vendor].getDuration(cx.player),
     }),
-    changeSrc: (cx, e) => PlayerActions[cx.vendor].changeSrc(cx.player),
+    changeSrc: (cx, e) => PlayerActions[cx.vendor].changeSrc(cx.player, e.src),
     destroy: (cx, e) => {
       PlayerActions[cx.vendor].destroy(cx.player);
     },

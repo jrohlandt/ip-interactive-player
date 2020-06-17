@@ -26,6 +26,7 @@ export const ACTIONS = {
     MUTE: 'MUTE',
     UNMUTE: 'UNMUTE',
     SEEK_TO: 'SEEK_TO',
+    CHANGE_SOURCE: 'CHANGE_SOURCE',
 };
 
 export const ON_PLAYER_STATE_CHANGE = 'ON_PLAYER_STATE_CHANGE';

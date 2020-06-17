@@ -31,7 +31,7 @@ class PlayerWindow extends React.Component {
           {/* Overlays */}
           {/* Place overlays after Youtube element */}
           {props.muted ? mutedOverlay : ''}
-          {props.playbackState === STATES.BUFFERING ? bufferingOverlay : ''}
+          {/* {props.playbackState === STATES.BUFFERING ? bufferingOverlay : ''} */}
 
           {/* <!-- Player Controls --> */}
           <div className="player-control-bar" >
@@ -77,7 +77,6 @@ PlayerWindow.propTypes = {
   vendor: PropTypes.string,
   duration: PropTypes.number.isRequired,
   currentTime: PropTypes.number.isRequired,
-  playbackState: PropTypes.string.isRequired,
   muted: PropTypes.bool.isRequired,
 
   onPlayerReady: PropTypes.func.isRequired,
