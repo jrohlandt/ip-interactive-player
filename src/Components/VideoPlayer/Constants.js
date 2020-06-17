@@ -9,6 +9,7 @@ export const STATES = {
     paused: 'paused',
     buffering: 'buffering',
     cued: 'cued',
+    destroyed: 'destroyed',
 };
 
 export const VENDORS = {

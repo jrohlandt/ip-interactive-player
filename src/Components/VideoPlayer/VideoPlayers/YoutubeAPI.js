@@ -23,13 +23,13 @@ const YoutubeAPI = function (videoUrl, onPlayerReady, onPlayerError, onPlayerSta
     // 'BUFFERING': 3,
     // 'CUED': 5,
 
-    window.YOUTUBE_PLAYER_32f3S9x8E32A39h8 = new YT.Player('player', {
+    const player = new YT.Player('player', {
       height: '',
-      width: '320',
+      width: '320', // TODO ??????
       videoId: getYoutubeVideoId(videoUrl),
       events: {
         'onReady': function (event) {
-          onPlayerReady();
+          onPlayerReady(player);
         },
         'onStateChange': function (event) {
           let state = YT.PlayerState.UNSTARTED;

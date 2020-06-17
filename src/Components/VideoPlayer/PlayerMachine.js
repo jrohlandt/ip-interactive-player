@@ -3,6 +3,15 @@ import { STATES } from './Constants';
 import PlayerActions from './PlayerActions';
 
 const Events = {
+  INITIALIZE: {
+    target: STATES.initialized,
+    actions: assign({
+      vendor: (cx, event) => event.vendor,
+      autoplay: (cx, event) => event.autoplay,
+      currentTime: 0,
+      duration: 0,
+    }),
+  },
   MUTE: {
     target: '',
     actions: [
@@ -25,7 +34,6 @@ const Events = {
 
 const PlayerMachine = Machine({
   id: 'playermachine',
-  initial: STATES.initializing,
   context: {
     player: false,
     vendor: '',
@@ -34,29 +42,21 @@ const PlayerMachine = Machine({
     currentTime: 0,
     muted: false,
   },
+  initial: STATES.initializing,
+  id: 'main',
+
   states: {
     on: { // is this ok in top level states????
       ERROR: {
         target: 'failure'
       }
     },
-    // initial: 'initializing',
-    [STATES.initializing]: {
-      on: {
-        INITIALIZE: {
-          target: STATES.initialized,
-          actions: assign({
-            vendor: (context, event) => event.vendor,
-            autoplay: (context, event) => event.autoplay,
-          }),
-        },
-
-      }
-    },
+    [STATES.initializing]: { on: { INITIALIZE: Events.INITIALIZE } },
+    [STATES.destroyed]: { on: { INITIALIZE: Events.INITIALIZE } },
     [STATES.initialized]: {
       on: {
         READY: {
-          target: `${STATES.ready}.${STATES.unstarted}`,
+          target: STATES.ready,
           actions: assign({
             player: (context, event) => event.player,
           }),
@@ -67,8 +67,8 @@ const PlayerMachine = Machine({
       }
     },
     [STATES.ready]: {
+      initial: 'unstarted',
       states: {
-        // initial: 'unstarted',
         [STATES.unstarted]: {
           on: {
             PLAY: {
@@ -103,7 +103,10 @@ const PlayerMachine = Machine({
             SEEK_TO: Events.SEEK_TO, // todo progress bar does not update when seeking in paused state.
             CHANGE_SOURCE: {
               target: STATES.playing,
-              actions: ['changeSrc', 'play']
+              actions: ['changeSrc' /*, 'resetCurrentTimeAndDuration'*/, 'play']
+            },
+            DESTROY: {
+              target: '#main.' + STATES.destroyed,
             }
           }
         },

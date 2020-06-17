@@ -7,8 +7,7 @@ const HTML5API = function (
   onPlayerStateChange
 ) {
   let video = document.createElement('video');
-  document.getElementById('player').appendChild(video);
-  video.onloadedmetadata = onPlayerReady;
+  video.onloadedmetadata = () => onPlayerReady(video);
   video.src = videoUrl;
   video.onplay = () => onPlayerStateChange(STATES.playing);
   video.onplaying = () => onPlayerStateChange(STATES.playing);
@@ -17,6 +16,15 @@ const HTML5API = function (
   video.onwaiting = () => onPlayerStateChange(STATES.buffering);
   video.onerror = onPlayerError;
   video.ontimeupdate = onTimeUpdate;
+
+  // wait for <div id="player"></div> to be created. todo see how YT player handles this.
+  const interval = setInterval(() => {
+    const el = document.getElementById('player');
+    if (el) {
+      el.appendChild(video);
+      clearInterval(interval);
+    }
+  }, 100);
 }
 
 export default HTML5API;

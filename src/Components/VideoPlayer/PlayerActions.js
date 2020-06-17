@@ -1,7 +1,6 @@
 import { getYoutubeVideoId } from './utils/vendor';
 const PlayerActions = {
   YOUTUBE: {
-    getPlayer: () => window.YOUTUBE_PLAYER_32f3S9x8E32A39h8,
     play: p => p.playVideo(),
     pause: p => p.pauseVideo(),
     mute: p => p.mute(),
@@ -14,7 +13,6 @@ const PlayerActions = {
     destroy: p => p.destroy(),
   },
   HTML5: {
-    getPlayer: () => document.getElementById('player').getElementsByTagName('video')[0],
     play: (p) => {
       p.play().catch(err => {
         console.warn(err);

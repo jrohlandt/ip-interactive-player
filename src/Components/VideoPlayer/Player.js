@@ -14,21 +14,13 @@ class Player extends React.Component {
   constructor(props) {
     super(props);
 
-    this.player = false;
     this.YoutubeTimerId = null;
     this.service = interpret(PlayerMachine).onTransition(current => {
-      // console.log('xstate:', current.value, current.context); 
+      // console.log('xstate:', current.value, current.context);
       this.setState({ current });
     });
 
     this.state = {
-      // ready: false,
-      // vendor: '',
-      // playbackState: STATES.UNSTARTED,
-      // muted: false,
-      // duration: 0,
-      // currentTime: 0,
-      // url: '',
       current: PlayerMachine.initialState,
     };
 
@@ -41,10 +33,9 @@ class Player extends React.Component {
     this.handleProgressClick = this.handleProgressClick.bind(this);
     this.doAction = this.doAction.bind(this);
 
-    this.getPlayer = this.getPlayer.bind(this);
-
 
     this.initPlayer = this.initPlayer.bind(this);
+    this.initHTML5 = this.initHTML5.bind(this);
     this.initYoutube = this.initYoutube.bind(this);
 
     this.currentStateIs = this.currentStateIs.bind(this);
@@ -54,22 +45,15 @@ class Player extends React.Component {
     return this.state.current.matches('ready.' + string);
   }
 
-  getPlayer() {
-    return PlayerActions[this.state.current.context.vendor].getPlayer();
-  }
-
   onPlayerError(e) {
     this.service.send('ERROR', { error: e });
   }
 
-  onPlayerReady() {
-    console.log('player ready', this.getPlayer())
-    // this.setState({ ready: true });
-    this.service.send("READY", { player: this.getPlayer() });
+  onPlayerReady(player) {
+    this.service.send("READY", { player });
 
     if (this.props.autoplay) {
-      // setTimeout(() => {
-      this.service.send("PLAY"); // todo handle in ready.unstarted state
+      this.doAction(ACTIONS.PLAY); // todo handle in ready.unstarted state???
     }
   }
 
@@ -77,7 +61,6 @@ class Player extends React.Component {
     console.log('state change: ', playbackState)
     if (isValidState(playbackState)) {
       this.props.updatePlaybackState(playbackState);
-      // this.setState({ playbackState, muted: this.isMuted() });
       this.service.send(playbackState);
     }
     else {
@@ -90,61 +73,63 @@ class Player extends React.Component {
     this.props.updateCurrentTime(this.state.current.context.currentTime);
   }
 
-  initPlayer(vendor) {
-    this.service.send('INITIALIZE', { vendor, autoplay: this.props.autoplay })
+  initPlayer(url) {
+    const vendor = getVendor(url);
+    this.service.send('INITIALIZE', { vendor, autoplay: this.props.autoplay });
+
     switch (vendor) {
       case VENDORS.HTML5:
-        this.initHTML5();
+        this.initHTML5(url);
         break;
       case VENDORS.YOUTUBE:
-        this.initYoutube();
+        this.initYoutube(url);
         break;
       default:
         break;
     }
   }
 
-  initHTML5() {
-    setTimeout(() => {
-      HTML5API(this.props.url, this.onPlayerReady, this.onPlayerError, this.onTimeUpdate, this.onPlayerStateChange);
-    }, 100);
+  initHTML5(url) {
+    HTML5API(
+      url,
+      this.onPlayerReady,
+      this.onPlayerError,
+      this.onTimeUpdate,
+      this.onPlayerStateChange
+    );
   }
 
-  initYoutube() {
-
+  initYoutube(url) {
     if (this.YoutubeTimerId !== null) {
       clearInterval(this.YoutubeTimerId); // so player will be re-initialized 
     }
 
-    setTimeout(() => {
-      YoutubeAPI(this.props.url, this.onPlayerReady, this.onPlayerError, this.onPlayerStateChange);
-      // start YT Timer
-      this.YoutubeTimerId = setInterval(() => {
-        if (this.state.playbackState === STATES.ended) {
-          clearInterval(this.YoutubeTimerId);
-          return;
-        }
+    YoutubeAPI(url, this.onPlayerReady, this.onPlayerError, this.onPlayerStateChange);
+    // start YT Timer
+    this.YoutubeTimerId = setInterval(() => {
+      if (this.state.playbackState === STATES.ended) {
+        clearInterval(this.YoutubeTimerId);
+        return;
+      }
 
-        // Make sure player is ready and that player object is set.
-        if (this.state.ready === false || this.player === false) {
-          return;
-        }
+      // Make sure player is ready and that player object is set.
+      if (!this.state.current.matches('ready.playing')) {
+        return;
+      }
 
-        this.onTimeUpdate(); // simulate onTimeUpdate event as YT API does not have one.
-      }, 100);
+      this.onTimeUpdate(); // simulate onTimeUpdate event as YT API does not have one.
     }, 100);
   };
 
-
-
   destroy() {
-    if (this.YoutubeTimerId !== null) {
-      clearInterval(this.YoutubeTimerId); // stop YT timer
-    }
-    return PlayerActions[this.state.vendor].destroy(this.player);
+    if (this.YoutubeTimerId !== null) clearInterval(this.YoutubeTimerId); // stop YT timer
+    const { vendor, player } = this.state.current.context;
+    this.service.send('DESTROY');
+    PlayerActions[vendor].destroy(player);
   }
 
   doAction(action, params = {}) {
+
     action = action.toUpperCase();
     if (!isValidAction(action)) {
       throw new Error(`Invalid action ${action}.`);
@@ -164,7 +149,6 @@ class Player extends React.Component {
         this.service.send(ACTIONS.UNMUTE);
         break;
       case (ACTIONS.SEEK_TO):
-        // this.seekTo(params.currentTime);
         this.service.send(ACTIONS.SEEK_TO, { seconds: params.currentTime });
         break;
       case (ACTIONS.CHANGE_SOURCE):
@@ -182,9 +166,7 @@ class Player extends React.Component {
 
   componentDidMount() {
     this.service.start();
-    const vendor = getVendor(this.props.url);
-
-    this.initPlayer(vendor);
+    this.initPlayer(this.props.url);
   }
 
   componentWillUnmount() {
@@ -200,8 +182,7 @@ class Player extends React.Component {
       if (this.state.current.context.vendor !== vendor) {
         // destroy player and reset state
         this.destroy();
-        this.initPlayer(vendor);
-        this.setState({ vendor, duration: 0, currentTime: 0 });
+        this.initPlayer(this.props.url);
       }
       else {
         this.doAction(ACTIONS.CHANGE_SOURCE, { src: this.props.url });
@@ -213,8 +194,8 @@ class Player extends React.Component {
       this.doAction(ACTIONS.PAUSE);
     };
 
-    if (prevProps.message === this.props.message) return;
-    if (typeof this.props.message.name === 'undefined') return;
+    // if (prevProps.message === this.props.message) return;
+    // if (typeof this.props.message.name === 'undefined') return;
   }
 
   render() {
