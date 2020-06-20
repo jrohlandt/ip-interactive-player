@@ -5,6 +5,7 @@ import { isValidState, isValidAction } from './Helpers.js';
 import { getVendor } from './utils/vendor';
 import PlayerActions from './PlayerActions';
 import PlayerWindow from './PlayerWindow.js';
+import VimeoAPI from './VideoPlayers/VimeoAPI';
 import HTML5API from './VideoPlayers/HTML5API';
 import YoutubeAPI from './VideoPlayers/YoutubeAPI';
 import PlayerMachine from './PlayerMachine';
@@ -35,6 +36,7 @@ class Player extends React.Component {
 
     this.initPlayer = this.initPlayer.bind(this);
     this.initHTML5 = this.initHTML5.bind(this);
+    this.initVimeo = this.initVimeo.bind(this);
     this.initYoutube = this.initYoutube.bind(this);
 
     this.currentStateIs = this.currentStateIs.bind(this);
@@ -50,7 +52,6 @@ class Player extends React.Component {
 
   onPlayerReady(player) {
     this.service.send("READY", { player });
-
     if (this.props.autoplay) {
       this.doAction(ACTIONS.PLAY);
     }
@@ -66,8 +67,8 @@ class Player extends React.Component {
     }
   }
 
-  onTimeUpdate() {
-    this.service.send('ON_TIME_UPDATE');
+  onTimeUpdate(data = {}) {
+    this.service.send('ON_TIME_UPDATE', { data });
     this.props.updateCurrentTime(this.state.current.context.currentTime);
   }
 
@@ -76,6 +77,9 @@ class Player extends React.Component {
     this.service.send('INITIALIZE', { vendor, autoplay: this.props.autoplay });
 
     switch (vendor) {
+      case VENDORS.VIMEO:
+        this.initVimeo(url);
+        break;
       case VENDORS.HTML5:
         this.initHTML5(url);
         break;
@@ -83,6 +87,7 @@ class Player extends React.Component {
         this.initYoutube(url);
         break;
       default:
+        console.error(`Vendor ${vendor} not recognized.`);
         break;
     }
   }
@@ -90,6 +95,17 @@ class Player extends React.Component {
   initHTML5(url) {
     HTML5API(
       url,
+      this.onPlayerReady,
+      this.onPlayerError,
+      this.onTimeUpdate,
+      this.onPlayerStateChange
+    );
+  }
+
+  initVimeo(url) {
+    VimeoAPI(
+      url,
+      this.doAction,
       this.onPlayerReady,
       this.onPlayerError,
       this.onTimeUpdate,

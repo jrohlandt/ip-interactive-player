@@ -1,5 +1,17 @@
-import { getYoutubeVideoId } from './utils/vendor';
+import { getYoutubeVideoId, getVimeoVideoId } from './utils/vendor';
 const PlayerActions = {
+  VIMEO: {
+    play: p => p.play().catch(error => { console.log('play error', error) }),
+    pause: p => p.pause(),
+    mute: p => p.setVolume(0),
+    unMute: p => p.setVolume(1),
+    // isMuted: not used for vimeo,
+    seekTo: (p, seconds) => { console.log('seek: ', seconds); p.setCurrentTime(seconds) },
+    // getCurrentTime: not used for vimeo
+    // getDuration: not used for vimeo,
+    changeSrc: (p, url) => p.loadVideo(getVimeoVideoId(url)),
+    destroy: p => p.destroy(),
+  },
   YOUTUBE: {
     play: p => p.playVideo(),
     pause: p => p.pauseVideo(),
@@ -30,9 +42,7 @@ const PlayerActions = {
     changeSrc: (p, url) => { p.src = url; p.load(); p.currentTime = 0; },
     destroy: () => document.getElementById('player').getElementsByTagName('video')[0].remove(),
   },
-  VIMEO: {
-    // pause: (p) => p.pause(),
-  }
+
 };
 
 export default PlayerActions;

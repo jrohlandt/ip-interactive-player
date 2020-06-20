@@ -1,24 +1,29 @@
 import { VENDORS } from '../Constants';
 function getVendor(url) {
 
-    if (/\.mp4$/.test(url)) {
-      return VENDORS.HTML5;
-    }
+  if (/\.mp4$/.test(url)) {
+    return VENDORS.HTML5;
+  }
 
-    const re = new RegExp(/^((https?:)?\/\/)?(www\.)?(youtube\.com|youtu.be)/);
-    if (re.test(url)) {
-      return VENDORS.YOUTUBE;
-    }
+  const re = new RegExp(/^((https?:)?\/\/)?(www\.)?(youtube\.com|youtu.be)/);
+  if (re.test(url)) {
+    return VENDORS.YOUTUBE;
+  }
 
-    return null;
+  const vimeo = new RegExp(/^((https?:)?\/\/)?(www\.)?vimeo\.com/);
+  if (vimeo.test(url)) {
+    return VENDORS.VIMEO;
+  }
+
+  return null;
 }
 
 function getYoutubeVideoId(url) {
-    
+
   if (getVendor(url) !== VENDORS.YOUTUBE) {
     return null;
   }
- 
+
   // handle youtu.be
   const re1 = /((https?:)?\/\/)?youtu.be\/?/;
   if (re1.test(url)) {
@@ -34,9 +39,9 @@ function getYoutubeVideoId(url) {
 
 function getVimeoVideoId(url) {
 
-    return url.replace(/(https?:\/\/|\/\/)/, '')
-                .replace(/(vimeo.com\/|player.vimeo.com\/video\/)/i, '')
-                .replace(/\/.*/, '');
+  return url.replace(/(https?:\/\/|\/\/)/, '')
+    .replace(/(vimeo.com\/|player.vimeo.com\/video\/)/i, '')
+    .replace(/\/.*/, '');
 }
 
 export { getVendor, getYoutubeVideoId, getVimeoVideoId };

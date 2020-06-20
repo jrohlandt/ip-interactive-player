@@ -30,13 +30,13 @@
                 "id": 677,
                 "parent_id": 1888,
                 "title": "grand child 1",
-                "url": "https://www.youtube.com/watch?v=8s2S8lgrJys"
+                "url": "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
             },
             {
                 "id": 1889,
                 "parent_id": 10,
                 "title": "vid 2.2",
-                "url": "https://www.youtube.com/watch?v=8s2S8lgrJys",
+                "url": "https://vimeo.com/428175533",
                 "interactions": {
                     "fork": {
                         "enabled": true,

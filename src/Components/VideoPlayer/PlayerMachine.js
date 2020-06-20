@@ -1,5 +1,5 @@
 import { Machine, assign } from 'xstate';
-import { STATES } from './Constants';
+import { STATES, VENDORS } from './Constants';
 import PlayerActions from './PlayerActions';
 
 const Events = {
@@ -132,12 +132,14 @@ const PlayerMachine = Machine({
     mute: (cx, e) => PlayerActions[cx.vendor].mute(cx.player),
     unMute: (cx, e) => PlayerActions[cx.vendor].unMute(cx.player),
     // syncMute makes sure that cx mute is in sync with player mute state.
-    syncMute: assign({ muted: (cx, e) => PlayerActions[cx.vendor].isMuted(cx.player) }
-    ),
+    // But for Vimeo just use the current cx.muted (their getVolume method returns a promise which is not easy to use with assign)
+    syncMute: assign({
+      muted: (cx, e) => cx.vendor === VENDORS.VIMEO ? cx.muted : PlayerActions[cx.vendor].isMuted(cx.player)
+    }),
     seekTo: (cx, e) => PlayerActions[cx.vendor].seekTo(cx.player, e.seconds),
     updateTime: assign({
-      currentTime: cx => PlayerActions[cx.vendor].getCurrentTime(cx.player),
-      duration: cx => PlayerActions[cx.vendor].getDuration(cx.player),
+      currentTime: (cx, e) => typeof e.data.seconds !== 'undefined' ? e.data.seconds : PlayerActions[cx.vendor].getCurrentTime(cx.player),
+      duration: (cx, e) => typeof e.data.duration !== 'undefined' ? e.data.duration : PlayerActions[cx.vendor].getDuration(cx.player),
     }),
     changeSrc: (cx, e) => PlayerActions[cx.vendor].changeSrc(cx.player, e.src),
     destroy: (cx, e) => {
