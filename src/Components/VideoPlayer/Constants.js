@@ -1,15 +1,15 @@
 export const STATES = {
-    initializing: 'initializing',
-    initialized: 'initialized',
-    failure: 'failure',
-    ready: 'ready',
-    unstarted: 'unstarted',
-    ended: 'ended',
-    playing: 'playing',
-    paused: 'paused',
-    buffering: 'buffering',
-    cued: 'cued',
-    destroyed: 'destroyed',
+    INITIALIZING: 'INITIALIZING',
+    INITIALIZED: 'INITIALIZED',
+    FAILURE: 'FAILURE',
+    READY: 'READY',
+    UNSTARTED: 'UNSTARTED',
+    ENDED: 'ENDED',
+    PLAYING: 'PLAYING',
+    PAUSED: 'PAUSED',
+    BUFFERING: 'BUFFERING',
+    CUED: 'CUED',
+    DESTROYED: 'DESTROYED',
 };
 
 export const VENDORS = {

@@ -25,9 +25,9 @@ function VimeoAPI(
       .then(() => onPlayerReady(player))
       .catch(error => onPlayerError(error));
 
-    player.on('play', () => onPlayerStateChange(STATES.playing));
-    player.on('pause', () => onPlayerStateChange(STATES.playing));
-    player.on('ended', () => onPlayerStateChange(STATES.ended));
+    player.on('play', () => onPlayerStateChange(STATES.PLAYING));
+    player.on('pause', () => onPlayerStateChange(STATES.PAUSED));
+    player.on('ended', () => onPlayerStateChange(STATES.ENDED));
     // player.on('volumechange', (data) => {});
     player.on('timeupdate', (data) => onTimeUpdate(data));
     // player.on('loaded', () => console.log('new vimeo video is loaded'));

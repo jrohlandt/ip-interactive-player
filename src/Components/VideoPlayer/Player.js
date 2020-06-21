@@ -1,6 +1,7 @@
 import React from 'react';
-import { interpret } from 'xstate';
+import { connect } from 'react-redux';
 import { STATES, VENDORS, ACTIONS } from './Constants';
+import { playerInit, playerReady, updatePlaybackState, updateCurrentTime, updateDuration, updateMuteState } from '../../redux/actions';
 import { isValidState, isValidAction } from './Helpers.js';
 import { getVendor } from './utils/vendor';
 import PlayerActions from './PlayerActions';
@@ -8,7 +9,6 @@ import PlayerWindow from './PlayerWindow.js';
 import VimeoAPI from './VideoPlayers/VimeoAPI';
 import HTML5API from './VideoPlayers/HTML5API';
 import YoutubeAPI from './VideoPlayers/YoutubeAPI';
-import PlayerMachine from './PlayerMachine';
 
 class Player extends React.Component {
 
@@ -16,14 +16,8 @@ class Player extends React.Component {
     super(props);
 
     this.YoutubeTimerId = null;
-    this.service = interpret(PlayerMachine).onTransition(current => {
-      // console.log('xstate:', current.value, current.context);
-      this.setState({ current });
-    });
 
-    this.state = {
-      current: PlayerMachine.initialState,
-    };
+    this.state = {};
 
     this.onPlayerReady = this.onPlayerReady.bind(this);
     this.onPlayerError = this.onPlayerError.bind(this);
@@ -31,7 +25,6 @@ class Player extends React.Component {
     this.onPlayerStateChange = this.onPlayerStateChange.bind(this);
     this.onTimeUpdate = this.onTimeUpdate.bind(this);
 
-    this.handleProgressClick = this.handleProgressClick.bind(this);
     this.doAction = this.doAction.bind(this);
 
     this.initPlayer = this.initPlayer.bind(this);
@@ -39,19 +32,22 @@ class Player extends React.Component {
     this.initVimeo = this.initVimeo.bind(this);
     this.initYoutube = this.initYoutube.bind(this);
 
-    this.currentStateIs = this.currentStateIs.bind(this);
-  }
-
-  currentStateIs(string) {
-    return this.state.current.matches('ready.' + string);
+    this.play = this.play.bind(this);
+    this.pause = this.pause.bind(this);
+    this.mute = this.mute.bind(this);
+    this.unMute = this.unMute.bind(this);
+    this.seekTo = this.seekTo.bind(this);
+    this.getCurrentTime = this.getCurrentTime.bind(this);
+    this.getDuration = this.getDuration.bind(this);
   }
 
   onPlayerError(e) {
-    this.service.send('ERROR', { error: e });
+    // this.service.send('ERROR', { error: e });
+    console.error(e);
   }
 
   onPlayerReady(player) {
-    this.service.send("READY", { player });
+    this.props.playerReady(player);
     if (this.props.autoplay) {
       this.doAction(ACTIONS.PLAY);
     }
@@ -60,21 +56,25 @@ class Player extends React.Component {
   onPlayerStateChange(playbackState) {
     if (isValidState(playbackState)) {
       this.props.updatePlaybackState(playbackState);
-      this.service.send(playbackState);
+      this.props.updateParentPlaybackState(playbackState); // todo connect <Interactor /> to redux store so no need for prop drilling.
     }
     else {
-      this.service.send('ERROR', { error: `Invalid playback state: ${playbackState}.` });
+      // this.service.send('ERROR', { error: `Invalid playback state: ${playbackState}.` });
     }
   }
 
   onTimeUpdate(data = {}) {
-    this.service.send('ON_TIME_UPDATE', { data });
-    this.props.updateCurrentTime(this.state.current.context.currentTime);
+    const currentTime = typeof data.seconds !== 'undefined' ? data.seconds : this.getCurrentTime();
+    this.props.updateCurrentTime(currentTime);
+    this.props.updateParentCurrentTime(currentTime); // todo connect <Interactor /> to redux store so no need for prop drilling.
+
+    const duration = typeof data.duration !== 'undefined' ? data.duration : this.getDuration();
+    this.props.updateDuration(duration);
+
   }
 
   initPlayer(url) {
     const vendor = getVendor(url);
-    this.service.send('INITIALIZE', { vendor, autoplay: this.props.autoplay });
 
     switch (vendor) {
       case VENDORS.VIMEO:
@@ -90,6 +90,8 @@ class Player extends React.Component {
         console.error(`Vendor ${vendor} not recognized.`);
         break;
     }
+
+    this.props.playerInit(vendor, this.props.settings.autoplay);
   }
 
   initHTML5(url) {
@@ -121,13 +123,13 @@ class Player extends React.Component {
     YoutubeAPI(url, this.onPlayerReady, this.onPlayerError, this.onPlayerStateChange);
     // start YT Timer
     this.YoutubeTimerId = setInterval(() => {
-      if (this.state.playbackState === STATES.ended) {
+      if (this.props.playbackState === STATES.ENDED) {
         clearInterval(this.YoutubeTimerId);
         return;
       }
 
       // Make sure player is ready and that player object is set.
-      if (!this.state.current.matches('ready.playing')) {
+      if (!this.props.ready) {
         return;
       }
 
@@ -135,56 +137,73 @@ class Player extends React.Component {
     }, 100);
   };
 
+  play = () => PlayerActions[this.props.vendor].play(this.props.player);
+
+  pause = () => PlayerActions[this.props.vendor].pause(this.props.player);
+
+  mute = () => PlayerActions[this.props.vendor].mute(this.props.player);
+
+  unMute = () => PlayerActions[this.props.vendor].unMute(this.props.player);
+
+  isMuted = () => {
+    // todo 
+  }
+
+  seekTo = seconds => PlayerActions[this.props.vendor].seekTo(this.props.player, seconds);
+
+  getCurrentTime() {
+    return PlayerActions[this.props.vendor].getCurrentTime(this.props.player);
+  }
+
+  getDuration() {
+    return PlayerActions[this.props.vendor].getDuration(this.props.player);
+  }
+
   destroy() {
     if (this.YoutubeTimerId !== null) clearInterval(this.YoutubeTimerId); // stop YT timer
-    const { vendor, player } = this.state.current.context;
-    this.service.send('DESTROY');
-    PlayerActions[vendor].destroy(player);
+    PlayerActions[this.props.vendor].destroy(this.props.player);
   }
 
   doAction(action, params = {}) {
-
     action = action.toUpperCase();
     if (!isValidAction(action)) {
       throw new Error(`Invalid action ${action}.`);
     }
 
+    if (!this.props.ready) {
+      console.warn('player not ready');
+      return;
+    }
+
     switch (action) {
       case (ACTIONS.PLAY):
-        this.service.send(ACTIONS.PLAY);
+        this.play();
         break;
       case (ACTIONS.PAUSE):
-        this.service.send(ACTIONS.PAUSE);
+        this.pause();
         break;
       case (ACTIONS.MUTE):
-        this.service.send(ACTIONS.MUTE);
+        this.mute();
+        this.props.updateMuteState(true);
         break;
       case (ACTIONS.UNMUTE):
-        this.service.send(ACTIONS.UNMUTE);
+        this.unMute();
+        this.props.updateMuteState(false);
         break;
       case (ACTIONS.SEEK_TO):
-        this.service.send(ACTIONS.SEEK_TO, { seconds: params.currentTime });
+        this.seekTo(params.currentTime);
+        this.props.updateCurrentTime(params.currentTime);
         break;
       case (ACTIONS.CHANGE_SOURCE):
-        this.service.send(ACTIONS.CHANGE_SOURCE, { src: params.src });
+        // this.service.send(ACTIONS.CHANGE_SOURCE, { src: params.src });
         break;
       default:
         throw new Error(`Invalid action: ${action}.`);
     }
   }
 
-  handleProgressClick(e) {
-    const pos = (e.pageX - e.target.offsetLeft) / e.target.offsetWidth;
-    this.doAction(ACTIONS.SEEK_TO, { currentTime: pos * this.state.current.context.duration });
-  }
-
   componentDidMount() {
-    this.service.start();
     this.initPlayer(this.props.url);
-  }
-
-  componentWillUnmount() {
-    this.service.stop();
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -192,7 +211,7 @@ class Player extends React.Component {
       this.props.resetForceReload();
 
       const vendor = getVendor(this.props.url);
-      if (this.state.current.context.vendor !== vendor) {
+      if (this.props.vendor !== vendor) {
         this.destroy();
         this.initPlayer(this.props.url);
       }
@@ -211,22 +230,16 @@ class Player extends React.Component {
   }
 
   render() {
-    const { current } = this.state;
+    const { vendor, duration, currentTime, playbackState, muted, } = this.props;
     return (
       <>
-        {current.context.vendor ?
+        {vendor ?
           <PlayerWindow
-            vendor={current.context.vendor}
-            duration={current.context.duration}
-            currentTime={current.context.currentTime}
-            playbackState={current.value}
-            currentStateIs={this.currentStateIs}
-            muted={current.context.muted}
-            onPlayerReady={this.onPlayerReady}
-            onPlayerStateChange={this.onPlayerStateChange}
-            onTimeUpdate={this.onTimeUpdate}
+            duration={duration}
+            currentTime={currentTime}
+            playbackState={playbackState}
+            muted={muted}
             doAction={this.doAction}
-            handleProgressClick={this.handleProgressClick}
           /> :
           ''}
 
@@ -236,4 +249,24 @@ class Player extends React.Component {
 
 }
 
-export default Player;
+const mapStateToProps = state => ({
+  vendor: state.videoPlayer.vendor,
+  player: state.videoPlayer.player,
+  ready: state.videoPlayer.ready,
+  playbackState: state.videoPlayer.playbackState,
+  duration: state.videoPlayer.duration,
+  currentTime: state.videoPlayer.currentTime,
+  muted: state.videoPlayer.muted,
+  autoplay: state.videoPlayer.autoplay,
+});
+
+const mapDispatchToProps = {
+  playerInit,
+  playerReady,
+  updatePlaybackState,
+  updateCurrentTime,
+  updateDuration,
+  updateMuteState,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Player);

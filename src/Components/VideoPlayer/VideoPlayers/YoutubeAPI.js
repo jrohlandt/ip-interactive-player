@@ -32,30 +32,28 @@ const YoutubeAPI = function (videoUrl, onPlayerReady, onPlayerError, onPlayerSta
           onPlayerReady(player);
         },
         'onStateChange': function (event) {
-          let state = YT.PlayerState.UNSTARTED;
+          let state = STATES.UNSTARTED;
 
           switch (event.data) {
             case (YT.PlayerState.UNSTARTED):
-
-              state = STATES.unstarted;
+              state = STATES.UNSTARTED;
               break;
             case (YT.PlayerState.ENDED):
-              state = STATES.ended;
+              state = STATES.ENDED;
               break;
             case (YT.PlayerState.PLAYING):
-              state = STATES.playing;
+              state = STATES.PLAYING;
               break;
             case (YT.PlayerState.PAUSED):
-              state = STATES.paused;
+              state = STATES.PAUSED;
               break;
             case (YT.PlayerState.BUFFERING):
-              state = STATES.buffering;
+              state = STATES.BUFFERING;
               break;
             case (YT.PlayerState.VIDEO_CUED):
-              state = STATES.cued;
+              state = STATES.CUED;
               break;
             default:
-              // done = true;
               break;
           }
           onPlayerStateChange(state);

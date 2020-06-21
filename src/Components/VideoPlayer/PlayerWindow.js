@@ -7,9 +7,26 @@ import { STATES, ACTIONS } from './Constants';
 
 class PlayerWindow extends React.Component {
 
+  constructor(props) {
+    super(props);
+
+    this.playbackStateIs = this.playbackStateIs.bind(this);
+    this.handleProgressClick = this.handleProgressClick.bind(this);
+
+  }
+
   componentDidCatch(error, info) {
     // Can also be logged to an error reporting service
     console.error('PlayerWindow: ', error, info);
+  }
+
+  playbackStateIs(playbackState) {
+    return this.props.playbackState === playbackState;
+  }
+
+  handleProgressClick(e) {
+    const pos = (e.pageX - e.target.offsetLeft) / e.target.offsetWidth;
+    this.props.doAction(ACTIONS.SEEK_TO, { currentTime: pos * this.props.duration });
   }
 
   render() {
@@ -24,14 +41,12 @@ class PlayerWindow extends React.Component {
         <div className="player-container">
 
           {/* <!-- Player element --> */}
-          <div id="player" data-src="">
-
-          </div>
+          <div id="player" data-src=""></div>
 
           {/* Overlays */}
           {/* Place overlays after Youtube element */}
           {props.muted ? mutedOverlay : ''}
-          {/* {props.playbackState === STATES.BUFFERING ? bufferingOverlay : ''} */}
+          {this.playbackStateIs(STATES.BUFFERING) ? bufferingOverlay : ''}
 
           {/* <!-- Player Controls --> */}
           <div className="player-control-bar" >
@@ -39,8 +54,8 @@ class PlayerWindow extends React.Component {
             {/* <!-- todo use webpack to load icons --> */}
             <div
               id="play-button"
-              className={"play-button " + (props.currentStateIs(STATES.playing) ? 'playing ' : 'paused ')}
-              onClick={() => props.doAction(props.currentStateIs(STATES.playing) ? ACTIONS.PAUSE : ACTIONS.PLAY)}
+              className={"play-button " + (this.playbackStateIs(STATES.PLAYING) ? 'playing ' : 'paused ')}
+              onClick={() => props.doAction(this.playbackStateIs(STATES.PLAYING) ? ACTIONS.PAUSE : ACTIONS.PLAY)}
             >
               <img src="/icons/play-icon.svg" className="play" alt="" />
               <img src="/icons/paused-icon.svg" className="pause" alt="" />
@@ -51,7 +66,7 @@ class PlayerWindow extends React.Component {
                 id="progress-bar"
                 max={props.duration}
                 value={props.currentTime}
-                onClick={props.handleProgressClick}
+                onClick={this.handleProgressClick}
               ></progress>
             </div>
 
@@ -74,16 +89,10 @@ class PlayerWindow extends React.Component {
 };
 
 PlayerWindow.propTypes = {
-  vendor: PropTypes.string,
   duration: PropTypes.number.isRequired,
   currentTime: PropTypes.number.isRequired,
   muted: PropTypes.bool.isRequired,
-
-  onPlayerReady: PropTypes.func.isRequired,
-  onPlayerStateChange: PropTypes.func.isRequired,
-  onTimeUpdate: PropTypes.func, // so far only html5 player uses onTimeUpdate
   doAction: PropTypes.func.isRequired,
-  handleProgressClick: PropTypes.func.isRequired,
 };
 
 export default PlayerWindow;
