@@ -68,8 +68,8 @@ class VideoPlayer extends React.Component {
         resetForceReload={this.props.resetForceReload}
         settings={{ autoplay: this.props.autoplay }}
         pause={this.props.pause}
-        updateParentPlaybackState={this.updatePlaybackState}
-        updateParentCurrentTime={this.updateCurrentTime}
+        updateInteractorPlaybackState={this.updatePlaybackState}
+        updateInteractorCurrentTime={this.updateCurrentTime}
       />
     );
   }
