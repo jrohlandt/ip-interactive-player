@@ -11,12 +11,12 @@
                 "id": 10,
                 "parent_id": 0,
                 "title": "parent",
-                "url": "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+                "url": "https://vimeo.com/429994190",
                 "interactions": {
                     "fork": {
                         "enabled": true,
                         "type": "custom_time",
-                        "start_time": 120
+                        "start_time": 60
                     }
                 }
             },
@@ -35,8 +35,20 @@
             {
                 "id": 1889,
                 "parent_id": 10,
+                "title": "vid 2.3",
+                "url": "https://www.youtube.com/watch?v=R-PdPtqw78k",
+                "interactions": {
+                    "fork": {
+                        "enabled": true,
+                        "start_time": 30
+                    }
+                }
+            },
+            {
+                "id": 1889,
+                "parent_id": 10,
                 "title": "vid 2.2",
-                "url": "https://vimeo.com/428175533",
+                "url": "https://vimeo.com/422966228",
                 "interactions": {
                     "fork": {
                         "enabled": true,

@@ -6,7 +6,7 @@ const PlayerActions = {
     mute: p => p.setVolume(0),
     unMute: p => p.setVolume(1),
     // isMuted: not used for vimeo,
-    seekTo: (p, seconds) => { console.log('seek: ', seconds); p.setCurrentTime(seconds) },
+    seekTo: (p, seconds) => p.setCurrentTime(seconds),
     // getCurrentTime: not used for vimeo
     // getDuration: not used for vimeo,
     changeSrc: (p, url) => p.loadVideo(getVimeoVideoId(url)),

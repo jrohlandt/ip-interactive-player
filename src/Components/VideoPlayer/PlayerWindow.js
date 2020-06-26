@@ -32,8 +32,10 @@ class PlayerWindow extends React.Component {
   render() {
     const props = this.props;
 
+    const { muted, buffering } = this.props;
+
     const mutedOverlay = <div className={styles.mutedOverlay}>muted</div>;
-    const bufferingOverlay = <div className={styles.bufferingOverlay}>buffering</div>;
+    const bufferingOverlay = <div className={styles.bufferingOverlay}><img src="/icons/loading-spinner.gif" alt="loading spinner" /></div>;
 
     return (
       <div className="wrapper">
@@ -44,12 +46,11 @@ class PlayerWindow extends React.Component {
           <div id="player" data-src=""></div>
 
           {/* Overlays */}
-          {/* Place overlays after Youtube element */}
-          {props.muted ? mutedOverlay : ''}
-          {this.playbackStateIs(STATES.BUFFERING) ? bufferingOverlay : ''}
+          {/* Place overlays after player element  */}
+          {muted ? mutedOverlay : ''}
+          {buffering ? bufferingOverlay : ''}
 
-          {/* <!-- Player Controls --> */}
-          <div className="player-control-bar" >
+          < div className="player-control-bar" >
 
             {/* <!-- todo use webpack to load icons --> */}
             <div
@@ -72,17 +73,18 @@ class PlayerWindow extends React.Component {
 
             <div
               id="mute-button"
-              className={"mute-button " + (props.muted === true ? "muted" : "not-muted")}
-              onClick={() => props.doAction(props.muted ? ACTIONS.UNMUTE : ACTIONS.MUTE)}
+              className={"mute-button " + (muted === true ? "muted" : "not-muted")}
+              onClick={() => props.doAction(muted ? ACTIONS.UNMUTE : ACTIONS.MUTE)}
             >
               <img src="/icons/sound-on-icon.svg" className="sound-on" alt="" />
               <img src="/icons/sound-off-icon.svg" className="sound-off" alt="" />
             </div>
 
           </div>
+
         </div>
 
-      </div>
+      </div >
     );
   }
 
@@ -92,6 +94,7 @@ PlayerWindow.propTypes = {
   duration: PropTypes.number.isRequired,
   currentTime: PropTypes.number.isRequired,
   muted: PropTypes.bool.isRequired,
+  buffering: PropTypes.bool.isRequired,
   doAction: PropTypes.func.isRequired,
 };
 

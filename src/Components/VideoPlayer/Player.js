@@ -25,6 +25,7 @@ class Player extends React.Component {
       duration: 0,
       currentTime: 0,
       muted: false,
+      buffering: false,
     };
 
     this.onPlayerReady = this.onPlayerReady.bind(this);
@@ -68,8 +69,14 @@ class Player extends React.Component {
 
   onPlayerStateChange(playbackState) {
     if (isValidState(playbackState)) {
-      this.props.updateInteractorPlaybackState(playbackState);
-      this.setState({ playbackState });
+      if (playbackState === STATES.BUFFERING) {
+        this.setState({ buffering: true });
+      }
+      else {
+        this.props.updateInteractorPlaybackState(playbackState);
+        this.setState({ playbackState, buffering: false });
+      }
+
     }
     else {
       // this.service.send('ERROR', { error: `Invalid playback state: ${playbackState}.` });
@@ -77,12 +84,20 @@ class Player extends React.Component {
   }
 
   onTimeUpdate(data = {}) {
-    const currentTime = typeof data.seconds !== 'undefined' ? data.seconds : this.getCurrentTime();
-    const duration = typeof data.duration !== 'undefined' ? data.duration : this.getDuration();
+    if (!this.state.player) return;
+    let currentTime = 0;
+    let duration = 0;
+    if (this.state.vendor === VENDORS.VIMEO) {
+      currentTime = typeof data.seconds !== 'undefined' ? data.seconds : 0;
+      duration = typeof data.duration !== 'undefined' ? data.duration : 0;
+    }
+    else {
+      currentTime = this.getCurrentTime();
+      duration = this.getDuration();
+    }
     this.props.updateInteractorCurrentTime(currentTime);
     // todo update interactorDuration
     this.setState({ currentTime, duration });
-
   }
 
   initPlayer(url) {
@@ -104,6 +119,7 @@ class Player extends React.Component {
     }
 
     this.setState({
+      player: null,
       vendor: vendor,
       autoplay: this.props.settings.autoplay,
       duration: 0,
@@ -249,7 +265,7 @@ class Player extends React.Component {
   }
 
   render() {
-    const { vendor, duration, currentTime, playbackState, muted, } = this.state;
+    const { vendor, duration, currentTime, playbackState, muted, buffering } = this.state;
     return (
       <>
         {vendor ?
@@ -258,7 +274,9 @@ class Player extends React.Component {
             currentTime={currentTime}
             playbackState={playbackState}
             muted={muted}
+            buffering={buffering}
             doAction={this.doAction}
+            vendor={vendor}
           /> :
           ''}
 
