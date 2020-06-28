@@ -276,6 +276,7 @@ class Player extends React.Component {
             muted={muted}
             buffering={buffering}
             doAction={this.doAction}
+            displayOverlay={this.props.displayOverlay}
             vendor={vendor}
           /> :
           ''}

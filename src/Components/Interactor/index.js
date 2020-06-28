@@ -1,6 +1,6 @@
 import React from 'react';
 import './styles.css';
-import { buildStructure } from '../../utils/tree';
+import { buildStructure } from './tree';
 import { STATES, ON_PLAYER_STATE_CHANGE, ON_TIME_UPDATE } from '../../utils/constants';
 import Ajax from '../../utils/ajax';
 // import { isProduction } from '../../utils/env';
@@ -21,8 +21,8 @@ class Interactor extends React.Component {
         url: '',
         interactions: { fork: { enabled: false, type: 'on_end', start_time: 0 } },
         nodes: [],
-        showInteractor: false,
       },
+      currentInteraction: null,
       pauseCurrentVideo: false,
       forceReload: false, // if the next video has the same url, force the video player component to play it.
     };
@@ -38,8 +38,8 @@ class Interactor extends React.Component {
     state.currentVideo = {
       ...video,
       currentTime: 0,
-      showInteractor: false,
     }
+    state.currentInteraction = null;
     state.pauseCurrentVideo = false;
     if (state.currentVideo.url === this.state.currentVideo.url) {
       state.forceReload = true;
@@ -52,37 +52,49 @@ class Interactor extends React.Component {
   }
 
   /**
-   * shouldShowInteractor
+   * getCurrentInteraction
    * Check if the current video has a interactor event type that matches "type"
    * and if it should be displayed now.
    * @param {obj} currentVideo 
    * @param {string} type // e.g. on_start, on_end or custom_time
+   * @returns {obj or null}
    */
-  shouldShowInteractor(currentVideo, type) {
+  getCurrentInteraction(currentVideo, type) {
 
-    if (typeof currentVideo.interactions === 'undefined') return false;
-    if (typeof currentVideo.interactions.fork === 'undefined') return false;
+    if (typeof currentVideo.interactions === 'undefined' || currentVideo.interactions.length === 0) return false;
+    // if (typeof currentVideo.interactions.fork === 'undefined') return false;
 
 
-    let interactor = currentVideo.interactions.fork; // for now just hard code fork but later there will be other interactions (e.g. CTA, Optin etc)
-    if (interactor.enabled !== true) return false;
-    if (type !== interactor.type) return false;
+    for (let i = 0; i < currentVideo.interactions.length; i++) {
+      const interaction = currentVideo.interactions[i];
 
-    switch (type) {
-      case 'on_start':
-        return true;
-      case 'on_end':
-        return true;
-      case 'custom_time':
-        if (currentVideo.currentTime >= interactor.start_time) {
-          return true;
-        }
-        break;
-      default:
-        return false;
+      // for now just hard code fork but later there will be other interactions (e.g. CTA, Optin etc)
+      if (interaction.type !== "fork") {
+        return null;
+      }
+
+      if (interaction.enabled !== true) return null;
+      if (type !== interaction.start_time_type) return null;
+
+      switch (type) {
+        case 'on_start':
+          interaction.enabled = false;
+          return interaction;
+        case 'on_end':
+          interaction.enabled = false;
+          return interaction;
+        case 'custom_time':
+          if (currentVideo.currentTime >= interaction.start_time) {
+            interaction.enabled = false;
+            return interaction;
+          }
+          break;
+        default:
+          return null;
+      }
     }
 
-    return false;
+    return null;
   }
 
   messageFromVideoPlayer(obj) {
@@ -104,22 +116,13 @@ class Interactor extends React.Component {
         case STATES.BUFFERING:
           break;
         case STATES.PLAYING:
-          if (this.shouldShowInteractor(currentVideo, 'on_start')) {
-            currentVideo.showInteractor = true;
-            currentVideo.interactions.fork.enabled = false;
-            state.pauseCurrentVideo = true;
-          }
+          state.currentInteraction = this.getCurrentInteraction(currentVideo, 'on_start');
           break;
         case STATES.PAUSED:
           // TODO show thumbnail
           break;
         case STATES.ENDED:
-
-          if (this.shouldShowInteractor(currentVideo, 'on_end')) {
-            currentVideo.showInteractor = true;
-            currentVideo.interactions.fork.enabled = false;
-            // state.pauseCurrentVideo = true; // video already ended 
-          }
+          state.currentInteraction = this.getCurrentInteraction(currentVideo, 'on_end');
           break;
         case STATES.CUED:
           break;
@@ -133,12 +136,10 @@ class Interactor extends React.Component {
 
     // On Time Update
     if (message.name === ON_TIME_UPDATE) {
-      currentVideo.currentTime = message.params.currentTime;
 
-      if (this.shouldShowInteractor(currentVideo, 'custom_time')) {
-        currentVideo.showInteractor = true;
-        currentVideo.interactions.fork.enabled = false;
-        state.pauseCurrentVideo = true;
+      currentVideo.currentTime = message.params.currentTime;
+      if (state.currentInteraction === null) {
+        state.currentInteraction = this.getCurrentInteraction(currentVideo, 'custom_time');
       }
 
       state.currentVideo = currentVideo;
@@ -157,7 +158,6 @@ class Interactor extends React.Component {
 
     let url = '';
     if (loadDummyProject === 'true') {
-      console.log('laod dummy');
       url = `${process.env.PUBLIC_URL}/data/project_1.json`;
     } else {
       url = `/api/player/get-details/${projectId}`;
@@ -179,17 +179,30 @@ class Interactor extends React.Component {
   }
 
   render() {
-    let currentVideo = this.state.currentVideo;
-    let interactionMarkup = <div style={{ 'display': 'none' }}></div>;
+    const { currentVideo, currentInteraction } = this.state;
+    let interactionMarkup = null;
 
-    if (currentVideo.showInteractor) {
+    if (currentInteraction) {
       interactionMarkup = (
-        <div className="current-interaction">
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 10,
+          // opacity: .5,
+          backgroundColor: currentInteraction.style.backgroundColor,
+        }}>
           {
             currentVideo.nodes.map(n => {
               return (
                 <button
                   key={n.id}
+                  style={n.style ? n.style : {}}
                   onClick={() => this.changeVideo(n)}
                 >
                   {n.title}
@@ -203,8 +216,7 @@ class Interactor extends React.Component {
 
     return (
       <div className="wrapper">
-        <div className="interactor-wrapper">
-          {interactionMarkup}
+        <div className="Interaction__wrapper">
           {
             this.state.currentVideo.url
               ? <VideoPlayer
@@ -212,8 +224,8 @@ class Interactor extends React.Component {
                 url={this.state.currentVideo.url}
                 forceReload={this.state.forceReload}
                 resetForceReload={this.resetForceReload}
-                pause={this.state.pauseCurrentVideo}
-                // play={this.state.play}
+                pause={!!currentInteraction}
+                displayOverlay={interactionMarkup}
                 sendMessageToParent={this.messageFromVideoPlayer}
                 messageFromInteractor={this.state.messageToVideoPlayer}
               />

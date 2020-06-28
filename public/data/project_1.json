@@ -12,13 +12,17 @@
                 "parent_id": 0,
                 "title": "parent",
                 "url": "https://vimeo.com/429994190",
-                "interactions": {
-                    "fork": {
+                "interactions": [
+                    {
+                        "type": "fork",
                         "enabled": true,
-                        "type": "custom_time",
-                        "start_time": 60
+                        "start_time_type": "custom_time",
+                        "start_time": 5,
+                        "style": {
+                            "backgroundColor": "blue"
+                        }
                     }
-                }
+                ]
             },
             {
                 "id": 3903209,
@@ -33,28 +37,43 @@
                 "url": "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
             },
             {
-                "id": 1889,
+                "id": 1889865765,
                 "parent_id": 10,
                 "title": "vid 2.3",
                 "url": "https://www.youtube.com/watch?v=R-PdPtqw78k",
-                "interactions": {
-                    "fork": {
+                "style": {
+                    "color": "green",
+                    "backgroundColor": "red",
+                    "border": "none"
+                },
+                "interactions": [
+                    {
+                        "type": "fork",
                         "enabled": true,
-                        "start_time": 30
+                        "start_time_type": "custom_time",
+                        "start_time": 5,
+                        "style": {
+                            "backgroundColor": "orange"
+                        }
                     }
-                }
+                ]
             },
             {
                 "id": 1889,
                 "parent_id": 10,
                 "title": "vid 2.2",
                 "url": "https://vimeo.com/422966228",
-                "interactions": {
-                    "fork": {
+                "interactions": [
+                    {
+                        "type": "fork",
                         "enabled": true,
-                        "start_time": 30
+                        "start_time_type": "custom_time",
+                        "start_time": 5,
+                        "style": {
+                            "backgroundColor": "brown"
+                        }
                     }
-                }
+                ]
             },
             {
                 "id": 33,
@@ -64,7 +83,7 @@
             },
             {
                 "id": 2903209,
-                "parent_id": 33,
+                "parent_id": 1889865765,
                 "title": "great grand child 1",
                 "url": "https://www.youtube.com/watch?v=ahCwqrYpIuM"
             },
@@ -72,19 +91,35 @@
                 "id": 1888,
                 "parent_id": 10,
                 "title": "vid 2.1",
-                "url": "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4"
+                "url": "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+                "interactions": [
+                    {
+                        "type": "fork",
+                        "enabled": true,
+                        "start_time_type": "custom_time",
+                        "start_time": 5,
+                        "style": {
+                            "backgroundColor": "purple"
+                        }
+                    }
+                ]
             },
             {
                 "id": 34,
                 "parent_id": 1889,
                 "title": "grand child 3",
                 "url": "https://www.youtube.com/watch?v=ahCwqrYpIuM",
-                "interactions": {
-                    "fork": {
+                "interactions": [
+                    {
+                        "type": "fork",
                         "enabled": true,
-                        "type": "on_end"
+                        "start_time_type": "custom_time",
+                        "start_time": 5,
+                        "style": {
+                            "backgroundColor": "blue"
+                        }
                     }
-                }
+                ]
             },
             {
                 "id": 9009,

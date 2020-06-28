@@ -32,7 +32,7 @@ class PlayerWindow extends React.Component {
   render() {
     const props = this.props;
 
-    const { muted, buffering } = this.props;
+    const { muted, buffering, displayOverlay } = this.props;
 
     const mutedOverlay = <div className={styles.mutedOverlay}>muted</div>;
     const bufferingOverlay = <div className={styles.bufferingOverlay}><img src="/icons/loading-spinner.gif" alt="loading spinner" /></div>;
@@ -41,12 +41,12 @@ class PlayerWindow extends React.Component {
       <div className="wrapper">
 
         <div className="player-container">
-
           {/* <!-- Player element --> */}
           <div id="player" data-src=""></div>
 
           {/* Overlays */}
-          {/* Place overlays after player element  */}
+          {/* Place overlays after player element (important for Youtube)  */}
+          {displayOverlay ? displayOverlay : ''}
           {muted ? mutedOverlay : ''}
           {buffering ? bufferingOverlay : ''}
 

@@ -70,6 +70,7 @@ class VideoPlayer extends React.Component {
         pause={this.props.pause}
         updateInteractorPlaybackState={this.updatePlaybackState}
         updateInteractorCurrentTime={this.updateCurrentTime}
+        displayOverlay={this.props.displayOverlay}
       />
     );
   }
