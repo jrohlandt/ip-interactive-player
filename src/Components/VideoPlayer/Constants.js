@@ -30,6 +30,11 @@ export const ACTIONS = {
     CHANGE_SOURCE: 'CHANGE_SOURCE',
 };
 
+export const INTERACTION_TYPES = {
+    FORK: 'FORK',
+    EMAIL_LIST_SIGN_UP: 'EMAIL_LIST_SIGN_UP',
+}
+
 export const ON_PLAYER_STATE_CHANGE = 'ON_PLAYER_STATE_CHANGE';
 
 export const ON_TIME_UPDATE = 'ON_TIME_UPDATE';

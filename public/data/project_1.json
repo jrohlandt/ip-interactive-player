@@ -15,11 +15,40 @@
                 "interactions": [
                     {
                         "type": "fork",
-                        "enabled": true,
+                        "enabled": false,
                         "start_time_type": "custom_time",
                         "start_time": 5,
                         "style": {
                             "backgroundColor": "blue"
+                        }
+                    },
+                    {
+                        "type": "email_list_sign_up",
+                        "enabled": true,
+                        "start_time_type": "custom_time",
+                        "start_time": 5,
+                        "style": {
+                            "backgroundColor": "pink"
+                        },
+                        "config": {
+                            "url": "http://localhost:8000/api/project/1/email-list-sign-up",
+                            "fields": [
+                                {
+                                    "name": "first_name",
+                                    "type": "text",
+                                    "placeHolder": "First name"
+                                },
+                                {
+                                    "name": "last_name",
+                                    "type": "text",
+                                    "placeHolder": "Last name"
+                                },
+                                {
+                                    "name": "email",
+                                    "type": "email",
+                                    "placeHolder": "Email Address"
+                                }
+                            ]
                         }
                     }
                 ]

@@ -1,6 +1,6 @@
 import React from 'react';
 import { STATES, VENDORS, ACTIONS } from './Constants';
-import { isValidState, isValidAction } from './Helpers.js';
+import { isValidState, isValidAction } from '../../utils/Helpers.js';
 import { getVendor } from './utils/vendor';
 import PlayerActions from './PlayerActions';
 import PlayerWindow from './PlayerWindow.js';
@@ -65,6 +65,10 @@ class Player extends React.Component {
     if (this.state.autoplay) {
       this.doAction(ACTIONS.PLAY);
     }
+
+    if (this.props.t > 0) {
+      this.doAction(ACTIONS.SEEK_TO, { currentTime: this.props.t });
+    }
   }
 
   onPlayerStateChange(playbackState) {
@@ -95,6 +99,8 @@ class Player extends React.Component {
       currentTime = this.getCurrentTime();
       duration = this.getDuration();
     }
+    // console.log('ontimeupdate', currentTime, duration);
+
     this.props.updateInteractorCurrentTime(currentTime);
     // todo update interactorDuration
     this.setState({ currentTime, duration });
